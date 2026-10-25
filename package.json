@@ -1,0 +1,23 @@
+{
+  "name": "ai-jyotish",
+  "version": "1.0.0",
+  "description": "Fun, mobile-first Hinglish astrology and palmistry reading web app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "astrology",
+    "palmistry",
+    "hinglish",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

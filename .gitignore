@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets (API keys live only in .env, never committed)
+.env
+.env.*
+!.env.example
+
+# Logs (Rule 5: Keep logs sanitized, do not commit temp logs)
+logs/
+*.log
+npm-debug.log*
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

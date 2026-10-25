@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>AI Jyotish · Cosmic Astrology & Palmistry Reflection</title>
+  <meta name="description" content="AI Jyotish: Guided, uplifting astrology and palmistry self-reflection powered by AI. English-first, zero budget, and strictly privacy-focused.">
+
+  <!-- Google Fonts: Cinzel (mystical serif), Outfit (modern sans), & Plus Jakarta Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Space Theme: Twinkling Stars, Nebulae, Constellations & Zodiac Symbols -->
+  <div class="space-background" aria-hidden="true">
+    <div class="stars-cluster stars-small"></div>
+    <div class="stars-cluster stars-medium"></div>
+    <div class="stars-cluster stars-large"></div>
+    
+    <!-- Constellations SVG Star Map -->
+    <svg class="constellations-network" viewBox="0 0 1440 900" preserveAspectRatio="none">
+      <!-- Aries & Taurus constellation segment -->
+      <line x1="120" y1="140" x2="220" y2="180" class="constellation-line" />
+      <line x1="220" y1="180" x2="310" y2="130" class="constellation-line" />
+      <line x1="310" y1="130" x2="380" y2="210" class="constellation-line" />
+      <!-- Leo & Virgo segment -->
+      <line x1="1100" y1="150" x2="1220" y2="110" class="constellation-line" />
+      <line x1="1220" y1="110" x2="1320" y2="190" class="constellation-line" />
+      <line x1="1220" y1="110" x2="1260" y2="260" class="constellation-line" />
+      <!-- Scorpius & Sagittarius segment -->
+      <line x1="140" y1="720" x2="240" y2="780" class="constellation-line" />
+      <line x1="240" y1="780" x2="340" y2="730" class="constellation-line" />
+      <line x1="340" y1="730" x2="410" y2="820" class="constellation-line" />
+      <!-- Pisces & Aquarius segment -->
+      <line x1="1080" y1="750" x2="1180" y2="710" class="constellation-line" />
+      <line x1="1180" y1="710" x2="1290" y2="770" class="constellation-line" />
+
+      <!-- Constellation Star Nodes -->
+      <circle cx="120" cy="140" r="3.5" class="star-node" />
+      <circle cx="220" cy="180" r="4.5" class="star-node pulsing" />
+      <circle cx="310" cy="130" r="3" class="star-node" />
+      <circle cx="380" cy="210" r="4" class="star-node" />
+      <circle cx="1100" cy="150" r="3.5" class="star-node" />
+      <circle cx="1220" cy="110" r="5" class="star-node pulsing" />
+      <circle cx="1320" cy="190" r="3.5" class="star-node" />
+      <circle cx="1260" cy="260" r="4" class="star-node" />
+      <circle cx="140" cy="720" r="4" class="star-node" />
+      <circle cx="240" cy="780" r="4.5" class="star-node pulsing" />
+      <circle cx="340" cy="730" r="3.5" class="star-node" />
+      <circle cx="410" cy="820" r="3.5" class="star-node" />
+      <circle cx="1080" cy="750" r="3.5" class="star-node" />
+      <circle cx="1180" cy="710" r="4.5" class="star-node pulsing" />
+      <circle cx="1290" cy="770" r="3" class="star-node" />
+    </svg>
+
+    <!-- Floating Zodiac Constellation Glyphs -->
+    <div class="zodiac-orbit zodiac-1" title="Aries">♈</div>
+    <div class="zodiac-orbit zodiac-2" title="Taurus">♉</div>
+    <div class="zodiac-orbit zodiac-3" title="Gemini">♊</div>
+    <div class="zodiac-orbit zodiac-4" title="Cancer">♋</div>
+    <div class="zodiac-orbit zodiac-5" title="Leo">♌</div>
+    <div class="zodiac-orbit zodiac-6" title="Virgo">♍</div>
+    <div class="zodiac-orbit zodiac-7" title="Libra">♎</div>
+    <div class="zodiac-orbit zodiac-8" title="Scorpio">♏</div>
+    <div class="zodiac-orbit zodiac-9" title="Sagittarius">♐</div>
+    <div class="zodiac-orbit zodiac-10" title="Capricorn">♑</div>
+    <div class="zodiac-orbit zodiac-11" title="Aquarius">♒</div>
+    <div class="zodiac-orbit zodiac-12" title="Pisces">♓</div>
+  </div>
+
+  <!-- Ambient Cosmic Background Nebulae -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
+  <div class="ambient-glow glow-gold" aria-hidden="true"></div>
+
+  <!-- Mobile Viewport Wrapper (375x812 baseline, expands smoothly to desktop) -->
+  <div class="app-viewport">
+
+    <!-- App Header / Brand Pill -->
+    <header class="app-header">
+      <div class="brand-pill" id="brand-pill">
+        <span class="brand-icon" aria-hidden="true">✨</span>
+        <span class="brand-title">AI JYOTISH</span>
+        <span class="brand-badge">SELF-REFLECTION</span>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         SCREEN 1: WELCOME SCREEN
+         ============================================================ -->
+    <main id="screen-welcome" class="screen screen-welcome active" role="main">
+
+      <!-- Mystical Visual Centerpiece with Working Animations -->
+      <div class="mystic-orb-container" aria-hidden="true">
+        <div class="orb-ring ring-outer"></div>
+        <div class="orb-ring ring-middle"></div>
+        <div class="orb-core">
+          <span class="orb-icon">✋🔮</span>
+        </div>
+        <div class="cosmic-sparkle sparkle-1">✦</div>
+        <div class="cosmic-sparkle sparkle-2">★</div>
+        <div class="cosmic-sparkle sparkle-3">✧</div>
+      </div>
+
+      <!-- Main Headline & Promise -->
+      <div class="welcome-content">
+        <div class="welcome-kicker">Astrology & Palmistry Insights</div>
+        <h1 class="main-heading" id="welcome-heading">
+          Cosmic Insights from<br>
+          <span class="gold-gradient-text">Your Stars & Palms</span>
+        </h1>
+
+        <p class="promise-text" id="welcome-promise">
+          Explore your personality, career inclinations, relationships, and personal growth through an uplifting, AI-guided reflection.
+        </p>
+
+        <!-- Feature Highlights (Pills) -->
+        <div class="feature-pills" aria-label="Key highlights">
+          <span class="pill">🌟 Astrological Archetype</span>
+          <span class="pill">✋ Hast Rekha Contours</span>
+          <span class="pill">🔒 100% In-Memory Privacy</span>
+        </div>
+      </div>
+
+      <!-- Call To Action & Mandatory Disclaimer -->
+      <div class="welcome-actions">
+        <button id="btn-start" class="btn-primary" type="button" aria-label="Start your reading">
+          <span class="btn-text">Start Reading</span>
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <p class="disclaimer-label" id="welcome-disclaimer">
+          For entertainment & self-reflection only · Not a definitive prediction
+        </p>
+      </div>
+
+    </main>
+
+    <!-- ============================================================
+         SCREEN 2: PERSONAL DETAILS FORM
+         ============================================================ -->
+    <main id="screen-details" class="screen screen-details" role="main" style="display: none;">
+
+      <div class="screen-header">
+        <button id="btn-back-to-welcome" class="btn-back" type="button" aria-label="Back to welcome">
+          <span aria-hidden="true">←</span> Back
+        </button>
+        <span class="step-indicator">Step 1 of 4 · Cosmic Alignment</span>
+      </div>
+
+      <div class="details-intro">
+        <h2 class="section-heading">Enter Your Details 🔮</h2>
+      </div>
+
+      <form id="details-form" class="details-form" novalidate>
+
+        <!-- Form Grid for Laptop 2-column & Mobile 1-column responsiveness -->
+        <div class="form-grid-responsive">
+          <!-- Field 1: First Name -->
+          <div class="form-group" id="group-first-name">
+            <label for="input-first-name" class="form-label">
+              First Name <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              id="input-first-name"
+              class="form-input"
+              placeholder="e.g. Maya, Alex, Julian..."
+              autocomplete="given-name"
+              maxlength="30"
+              required
+            >
+            <p class="hint-message" id="hint-first-name" role="alert" style="display: none;"></p>
+          </div>
+
+          <!-- Field 2: Date of Birth with Calendar picker -->
+          <div class="form-group" id="group-dob">
+            <label for="input-dob" class="form-label">
+              Date of Birth <span class="required-star">*</span>
+            </label>
+            <input
+              type="date"
+              id="input-dob"
+              class="form-input custom-date-picker"
+              min="1920-01-01"
+              max="2026-10-26"
+              required
+            >
+            <p class="hint-message" id="hint-dob" role="alert" style="display: none;"></p>
+          </div>
+        </div>
+
+        <div class="form-grid-responsive">
+          <!-- Field 3: Birthplace (City) - OPTIONAL -->
+          <div class="form-group" id="group-birthplace">
+            <label for="input-birthplace" class="form-label">
+              Birthplace (City) <span class="optional-tag">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              id="input-birthplace"
+              class="form-input"
+              placeholder="e.g. London, New York, Delhi, Tokyo..."
+              maxlength="40"
+            >
+            <p class="hint-message" id="hint-birthplace" role="alert" style="display: none;"></p>
+          </div>
+
+          <!-- Field 4: Time of Birth Chip Group (One-word labels) -->
+          <div class="form-group" id="group-time-bucket">
+            <label class="form-label">
+              Time of Birth <span class="optional-tag">(Optional)</span>
+            </label>
+            <div class="chips-group" role="radiogroup" aria-label="Select birth time period">
+              <button type="button" class="chip-btn" data-time="morning" role="radio" aria-checked="false">
+                🌅 Morning
+              </button>
+              <button type="button" class="chip-btn" data-time="afternoon" role="radio" aria-checked="false">
+                ☀️ Afternoon
+              </button>
+              <button type="button" class="chip-btn" data-time="evening" role="radio" aria-checked="false">
+                🌇 Evening
+              </button>
+              <button type="button" class="chip-btn" data-time="night" role="radio" aria-checked="false">
+                🌙 Night
+              </button>
+              <button type="button" class="chip-btn active" data-time="unknown" role="radio" aria-checked="true">
+                ❓ Unknown
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions: Submit to Palm Step -->
+        <div class="form-actions">
+          <button id="btn-next-to-palm" class="btn-primary" type="submit" aria-label="Continue to palm step">
+            <span class="btn-text">Continue to Palm Reading</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <p class="disclaimer-label">
+            For entertainment & self-reflection only
+          </p>
+        </div>
+
+      </form>
+
+    </main>
+
+    <!-- ============================================================
+         SCREEN 3: PALM PHOTO UPLOAD SCREEN
+         ============================================================ -->
+    <main id="screen-palm" class="screen screen-palm" role="main" style="display: none;">
+
+      <div class="screen-header">
+        <button id="btn-back-to-details" class="btn-back" type="button" aria-label="Back to details">
+          <span aria-hidden="true">←</span> Back
+        </button>
+        <span class="step-indicator">Step 2 of 4 · Hast Rekha</span>
+      </div>
+
+      <div class="palm-intro">
+        <h2 class="section-heading">Show Your Palm ✋</h2>
+        <p class="section-subheading">
+          Upload your palm photo or explore with a synthesized demo palm.
+        </p>
+      </div>
+
+      <!-- Elongated Palm Interactive Preview & Upload Box (instructions removed) -->
+      <div class="palm-preview-container elongated" id="palm-preview-container">
+        <!-- SVG Hand Silhouette Guideline -->
+        <div class="palm-silhouette" id="palm-silhouette" aria-hidden="true">
+          <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 220 C85 220 70 210 65 190 C60 170 55 140 50 110 C45 80 40 50 48 45 C56 40 65 65 70 95 C72 60 75 30 85 25 C95 20 100 50 100 85 C103 50 108 20 118 20 C128 20 128 55 125 90 C130 65 138 45 148 48 C158 51 152 85 145 115 C140 145 145 170 140 190 C135 210 115 220 100 220 Z" stroke="rgba(243, 209, 122, 0.45)" stroke-width="2" stroke-dasharray="4 4" />
+            <!-- Major palm lines subtle guide -->
+            <path d="M70 125 C85 120 115 128 135 120" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" />
+            <path d="M70 140 C90 140 110 150 130 160" stroke="rgba(255, 230, 0, 0.5)" stroke-width="1.5" />
+            <path d="M80 135 C85 160 95 185 110 200" stroke="rgba(0, 255, 136, 0.5)" stroke-width="1.5" />
+          </svg>
+        </div>
+
+        <!-- Rendered Image Preview -->
+        <img id="palm-preview-img" class="palm-preview-img" alt="Uploaded palm preview" style="display: none;">
+
+        <!-- Active Mode Badge -->
+        <div class="palm-status-badge" id="palm-status-badge">
+          <span class="status-dot"></span>
+          <span id="palm-status-text">No palm selected yet</span>
+        </div>
+      </div>
+
+      <!-- Upload Actions -->
+      <div class="palm-actions">
+        <!-- Hidden real file input -->
+        <input type="file" id="palm-input" accept="image/*" capture="environment" style="display: none;">
+
+        <button id="btn-pick-photo" class="btn-secondary" type="button" aria-label="Take or upload palm photo">
+          <span class="btn-icon">📷</span>
+          <span id="pick-photo-text">Take or Upload Palm Photo</span>
+        </button>
+
+        <button id="btn-demo-palm" class="btn-ghost" type="button" aria-label="Use synthetic demo palm">
+          <span class="btn-icon">✨</span>
+          <span>Continue with Demo Palm (Instant)</span>
+        </button>
+
+        <!-- Analyze Palm Button (Activated when photo or demo selected) -->
+        <button id="btn-analyze-palm" class="btn-primary" type="button" style="display: none;" aria-label="Analyze palm and stars">
+          <span class="btn-text">Analyze Palm & Stars</span>
+          <span class="btn-arrow" aria-hidden="true">✨</span>
+        </button>
+
+        <!-- Privacy Fine Print -->
+        <div class="palm-privacy-note">
+          <span class="lock-icon" aria-hidden="true">🔒</span>
+          <span>In-Browser Sanitization: Photos are resized on your device to strip camera and location EXIF metadata. Images are processed in-memory and never stored.</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ============================================================
+         SCREEN 4: REIMAGINED LOADING SCREEN (Interactive Hand Scanner & Neon Line Mapping)
+         ============================================================ -->
+    <main id="screen-loading" class="screen screen-loading" role="main" style="display: none;">
+
+      <div class="scanner-container">
+        <div class="scanner-header">
+          <div class="scanner-kicker" id="scanner-kicker">
+            <span class="pulse-star">✦</span> Neural Palmistry Scan
+          </div>
+          <h2 class="scanner-title" id="scanner-title">Scanning Palm Geometry</h2>
+          <p class="scanner-subtitle" id="scanner-subtitle">Aligning hand contours with celestial coordinates</p>
+        </div>
+
+        <!-- Full Photo of the Hand with Sweeping Laser & Neon Lines Mapping -->
+        <div class="hand-scanner-viewport" id="hand-scanner-viewport">
+          <!-- Background: Actual uploaded or demo hand image -->
+          <img id="scanner-palm-photo" class="scanner-palm-photo" alt="Scanning palm">
+
+          <!-- Sweeping Laser Scan Beam (active for first 4 seconds) -->
+          <div class="scanner-laser" id="scanner-laser" aria-hidden="true"></div>
+
+          <!-- Mapped Neon Lines SVG Overlay (viewBox 500x700) -->
+          <svg class="neon-lines-svg" id="neon-lines-svg" viewBox="0 0 500 700" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <filter id="neon-glow-magenta" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.5" result="blur1" />
+                <feGaussianBlur stdDeviation="6" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="neon-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.5" result="blur1" />
+                <feGaussianBlur stdDeviation="6" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="neon-glow-gold" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.5" result="blur1" />
+                <feGaussianBlur stdDeviation="6" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="neon-glow-purple" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.5" result="blur1" />
+                <feGaussianBlur stdDeviation="6" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Major Lines & Badges Container (revealed at 4s mark) -->
+            <g id="neon-mapping-group" class="neon-mapping-group">
+              <!-- 1. Heart Line: Neon Pink / Magenta (#FF2D8D) -->
+              <path id="neon-heart-line" class="neon-line neon-magenta-line" filter="url(#neon-glow-magenta)"
+                    d="M 370,335 C 310,295 240,265 180,250" />
+              <!-- Heart Line leader pointer -->
+              <line id="neon-heart-leader" class="neon-leader leader-magenta" filter="url(#neon-glow-magenta)"
+                    x1="340" y1="210" x2="280" y2="285" />
+              <!-- Heart Line Badge Pill (matches uploaded photo) -->
+              <g id="neon-heart-badge" class="neon-badge" filter="url(#neon-glow-magenta)">
+                <rect x="330" y="190" width="138" height="40" rx="20" class="badge-bg badge-border-magenta" />
+                <circle cx="349" cy="210" r="5" fill="#FF2D8D" class="badge-dot" />
+                <text x="363" y="215" class="badge-text">Heart line</text>
+              </g>
+
+              <!-- 2. Head Line: Electric Cyan (#00E5FF) -->
+              <path id="neon-head-line" class="neon-line neon-cyan-line" filter="url(#neon-glow-cyan)"
+                    d="M 115,370 C 185,385 260,405 355,440" />
+              <!-- Head Line leader pointer -->
+              <line id="neon-head-leader" class="neon-leader leader-cyan" filter="url(#neon-glow-cyan)"
+                    x1="335" y1="345" x2="265" y2="405" />
+              <!-- Head Line Badge Pill (matches uploaded photo) -->
+              <g id="neon-head-badge" class="neon-badge" filter="url(#neon-glow-cyan)">
+                <rect x="335" y="325" width="138" height="40" rx="20" class="badge-bg badge-border-cyan" />
+                <circle cx="354" cy="345" r="5" fill="#00E5FF" class="badge-dot" />
+                <text x="368" y="350" class="badge-text">Head line</text>
+              </g>
+
+              <!-- 3. Life Line: Vibrant Gold / Orange (#FFB300) -->
+              <path id="neon-life-line" class="neon-line neon-gold-line" filter="url(#neon-glow-gold)"
+                    d="M 115,372 C 145,435 168,505 162,580" />
+              <path id="neon-life-branch" class="neon-line neon-gold-line" filter="url(#neon-glow-gold)"
+                    d="M 155,505 L 128,545" />
+              <!-- Life Line leader pointer -->
+              <line id="neon-life-leader" class="neon-leader leader-gold" filter="url(#neon-gold-glow)"
+                    x1="125" y1="535" x2="160" y2="480" />
+              <!-- Life Line Badge Pill (matches uploaded photo) -->
+              <g id="neon-life-badge" class="neon-badge" filter="url(#neon-gold-glow)">
+                <rect x="10" y="515" width="128" height="40" rx="20" class="badge-bg badge-border-gold" />
+                <circle cx="28" cy="535" r="5" fill="#FFB300" class="badge-dot" />
+                <text x="42" y="540" class="badge-text">Life line</text>
+              </g>
+
+              <!-- 4. Fate Line: Deep Violet / Purple (#B388FF) -->
+              <path id="neon-fate-line" class="neon-line neon-purple-line" filter="url(#neon-glow-purple)"
+                    d="M 225,600 L 225,450 C 225,390 226,340 226,315" />
+              <path id="neon-fate-branch" class="neon-line neon-purple-line" filter="url(#neon-glow-purple)"
+                    d="M 225,510 L 238,540" />
+              <!-- Fate Line leader pointer -->
+              <line id="neon-fate-leader" class="neon-leader leader-purple" filter="url(#neon-glow-purple)"
+                    x1="250" y1="545" x2="225" y2="500" />
+              <!-- Fate Line Badge Pill (matches uploaded photo) -->
+              <g id="neon-fate-badge" class="neon-badge" filter="url(#neon-glow-purple)">
+                <rect x="245" y="525" width="130" height="40" rx="20" class="badge-bg badge-border-purple" />
+                <circle cx="264" cy="545" r="5" fill="#B388FF" class="badge-dot" />
+                <text x="278" y="550" class="badge-text">Fate line</text>
+              </g>
+
+              <!-- Intersecting Node Accents -->
+              <circle cx="280" cy="285" r="4" fill="#FF2D8D" class="neon-node" filter="url(#neon-glow-magenta)" />
+              <circle cx="265" cy="405" r="4" fill="#00E5FF" class="neon-node" filter="url(#neon-glow-cyan)" />
+              <circle cx="160" cy="480" r="4" fill="#FFB300" class="neon-node" filter="url(#neon-glow-gold)" />
+              <circle cx="225" cy="500" r="4" fill="#B388FF" class="neon-node" filter="url(#neon-glow-purple)" />
+            </g>
+          </svg>
+        </div>
+
+        <!-- Scanner Footer Status & Progress Bar -->
+        <div class="scanner-footer">
+          <p class="scanner-status" id="scanner-status">Initializing optical palm sweep...</p>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="loading-progress-bar"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ============================================================
+         SCREEN 5: RESULTS DASHBOARD
+         ============================================================ -->
+    <main id="screen-results" class="screen screen-results" role="main" style="display: none;">
+
+      <!-- Results Header -->
+      <div class="results-header">
+        <div class="results-kicker-row">
+          <span class="results-kicker">Cosmic Reflection Report</span>
+          <span class="badge-entertainment">For Fun & Reflection</span>
+        </div>
+
+        <h2 class="results-title">
+          Greetings, <span class="gold-gradient-text" id="r-user-name">Seeker</span>
+        </h2>
+
+        <!-- Archetype Card -->
+        <div class="archetype-hero-card">
+          <div class="archetype-badge-pill" id="r-archetype-pill">Astrological Archetype</div>
+          <h3 class="archetype-title" id="r-archetype-title">The Inquisitive Wayfarer</h3>
+          <p class="archetype-gift" id="r-archetype-gift">Core Gift: Reflective Clarity & Wisdom</p>
+
+          <div class="archetype-meta-grid" id="r-meta-grid">
+            <div class="meta-tag">
+              <span class="meta-tag-label">Zodiac Sign</span>
+              <span class="meta-tag-value" id="r-tag-zodiac">Pisces ♓</span>
+            </div>
+            <div class="meta-tag">
+              <span class="meta-tag-label">Life-Path</span>
+              <span class="meta-tag-value" id="r-tag-lifepath">Path 7 🌟</span>
+            </div>
+            <div class="meta-tag">
+              <span class="meta-tag-label">Solar Time</span>
+              <span class="meta-tag-value" id="r-tag-time">Morning 🌅</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Navigation / Sections Container -->
+      <div class="results-sections">
+
+        <!-- 1. Palm Line Highlights -->
+        <section class="result-card palm-lines-card" id="card-palm-highlights">
+          <div class="card-header">
+            <span class="card-icon">✋</span>
+            <h4 class="card-title">Hast Rekha · Palm Highlights</h4>
+          </div>
+          <p class="card-intro">Key contours observed during your palm analysis:</p>
+          <div class="palm-lines-list" id="r-palm-lines">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+
+        <!-- 2. Personality Reflection -->
+        <section class="result-card" id="card-personality">
+          <div class="card-header">
+            <span class="card-icon">🌟</span>
+            <h4 class="card-title" id="r-personality-title">Personality Reflection</h4>
+          </div>
+          <p class="card-body-text" id="r-personality-summary"></p>
+          <div class="traits-container">
+            <div class="traits-label">Observed Resonance:</div>
+            <ul class="traits-list" id="r-personality-traits"></ul>
+          </div>
+        </section>
+
+        <!-- 3. Strengths and Areas for Growth -->
+        <section class="result-card" id="card-strengths-growth">
+          <div class="card-header">
+            <span class="card-icon">⚡</span>
+            <h4 class="card-title" id="r-strengths-growth-title">Strengths & Areas for Growth</h4>
+          </div>
+          <div class="highlight-callout">
+            <span class="callout-icon">✨</span>
+            <div class="callout-content">
+              <strong>Core Strengths:</strong>
+              <span id="r-strengths-text"></span>
+            </div>
+          </div>
+          <div class="highlight-callout">
+            <span class="callout-icon">🌱</span>
+            <div class="callout-content">
+              <strong>Areas for Nurturing & Growth:</strong>
+              <span id="r-growth-areas-text"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Career and Learning Reflections -->
+        <section class="result-card" id="card-career">
+          <div class="card-header">
+            <span class="card-icon">🧭</span>
+            <h4 class="card-title" id="r-career-title">Career & Learning Reflections</h4>
+          </div>
+          <p class="card-body-text" id="r-career-summary"></p>
+          <div class="highlight-callout">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              <strong>Ideal Environments:</strong>
+              <span id="r-career-environments"></span>
+            </div>
+          </div>
+          <div class="highlight-callout">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              <strong>Learning Style:</strong>
+              <span id="r-career-learning"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Relationships and Communication Reflections -->
+        <section class="result-card" id="card-relationships">
+          <div class="card-header">
+            <span class="card-icon">🤍</span>
+            <h4 class="card-title" id="r-relationships-title">Relationships & Communication</h4>
+          </div>
+          <p class="card-body-text" id="r-relationships-summary"></p>
+          <div class="highlight-callout">
+            <span class="callout-icon">💬</span>
+            <div class="callout-content">
+              <strong>Communication Style:</strong>
+              <span id="r-relationships-communication"></span>
+            </div>
+          </div>
+          <div class="highlight-callout">
+            <span class="callout-icon">🌿</span>
+            <div class="callout-content">
+              <strong>Connection Tip:</strong>
+              <span id="r-relationships-tip"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. General Future Possibilities -->
+        <section class="result-card" id="card-future">
+          <div class="card-header">
+            <span class="card-icon">🔮</span>
+            <h4 class="card-title" id="r-future-title">General Future Possibilities</h4>
+          </div>
+          <p class="card-body-text" id="r-future-summary"></p>
+          <div class="traits-container">
+            <div class="traits-label">Upcoming Themes to Explore:</div>
+            <ul class="traits-list" id="r-future-themes"></ul>
+          </div>
+        </section>
+
+        <!-- 7. Positive, Practical Suggestions -->
+        <section class="result-card affirmation-card" id="card-practical-suggestions">
+          <div class="card-header">
+            <span class="card-icon">☀️</span>
+            <h4 class="card-title" id="r-practical-title">Positive, Practical Suggestions</h4>
+          </div>
+          <div class="traits-container">
+            <div class="traits-label">Suggested Daily Grounding:</div>
+            <ul class="traits-list" id="r-practical-practices"></ul>
+          </div>
+          <div class="prompt-box">
+            <span class="prompt-label">Self-Reflection Question:</span>
+            <p class="prompt-quote" id="r-practical-prompt"></p>
+          </div>
+          <div class="cosmic-affirmation-box">
+            <span class="affirmation-label">Daily Affirmation</span>
+            <blockquote class="affirmation-text" id="r-practical-affirmation"></blockquote>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="results-actions">
+        <button id="btn-copy-summary" class="btn-secondary" type="button" aria-label="Copy summary to clipboard">
+          <span class="btn-icon">📋</span>
+          <span id="copy-summary-text">Copy Summary</span>
+        </button>
+
+        <button id="btn-start-new" class="btn-primary" type="button" aria-label="Start a new reading">
+          <span class="btn-text">Start New Reading</span>
+          <span class="btn-arrow" aria-hidden="true">↺</span>
+        </button>
+
+        <!-- Detailed Legal / Entertainment Disclaimer -->
+        <footer class="results-footer">
+          <p class="legal-disclaimer">
+            <strong>Disclaimer:</strong> This reading is generated for entertainment, curiosity, and personal self-reflection. Palmistry and astrological symbolism are artistic interpretations and do not constitute verified knowledge about health, legal, relationships, or future events.
+          </p>
+          <p class="mode-info" id="r-mode-info">Engine: Gemini AI Orchestrator</p>
+        </footer>
+      </div>
+
+    </main>
+
+    <!-- ============================================================
+         SCREEN 6: ERROR / RETRY SCREEN
+         ============================================================ -->
+    <main id="screen-error" class="screen screen-error" role="main" style="display: none;">
+      <div class="error-container">
+        <div class="error-icon" aria-hidden="true">🌙⚡</div>
+        <h2 class="error-title">Cosmic Signal Interrupted</h2>
+        <p class="error-message" id="error-message-text">
+          We encountered an unexpected connection issue while preparing your reflection.
+        </p>
+
+        <div class="error-actions">
+          <button id="btn-retry" class="btn-primary" type="button" aria-label="Retry reading">
+            <span class="btn-text">Try Again</span>
+            <span class="btn-arrow" aria-hidden="true">↺</span>
+          </button>
+          <button id="btn-error-back" class="btn-secondary" type="button" aria-label="Back to details">
+            <span>Back to Details</span>
+          </button>
+        </div>
+
+        <p class="disclaimer-label">
+          For entertainment & self-reflection only
+        </p>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Toast Notification for clipboard copying -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Client-side Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
