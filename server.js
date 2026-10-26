@@ -87,9 +87,12 @@ app.post('/api/reading', readingRateLimiter, async (req, res) => {
     const durationMs = Date.now() - startTime;
     console.error(`[event] reading_request_error duration_ms=${durationMs}`);
     // Rule 10: Never expose API keys or internal stack traces in error messages
-    return res.status(500).json({
+    const safeError = err.message && !err.message.includes('key=') && !err.message.includes('GEMINI_API_KEY')
+      ? err.message
+      : 'Cosmic AI interpretation service is temporarily unavailable. Please try again.';
+    return res.status(502).json({
       success: false,
-      error: 'An unexpected error occurred while preparing your reflection. Please try again.'
+      error: safeError
     });
   }
 });

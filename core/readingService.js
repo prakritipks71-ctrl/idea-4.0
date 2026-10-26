@@ -441,10 +441,139 @@ function calculateCategoryScores(category, person1, person2 = null) {
   };
 }
 
+const ZODIAC_PROFILES = {
+  Aries: { trait: 'bold initiative and fierce authenticity', style: 'direct and spirited' },
+  Taurus: { trait: 'grounded steadiness and loyal persistence', style: 'calm and deliberate' },
+  Gemini: { trait: 'sparkling conversational flow and quick curiosity', style: 'playful and multifaceted' },
+  Cancer: { trait: 'deep emotional intuition and heartfelt warmth', style: 'protective and caring' },
+  Leo: { trait: 'radiant presence, creative flair and big-hearted loyalty', style: 'confident and warm' },
+  Virgo: { trait: 'crisp discernment, masterful detail, and quiet competence', style: 'thoughtful and observant' },
+  Libra: { trait: 'diplomatic charm, balanced grace, and love for harmony', style: 'considerate and social' },
+  Scorpio: { trait: 'magnetic depth, intense loyalty, and perceptive wisdom', style: 'profound and passionate' },
+  Sagittarius: { trait: 'truth-seeking optimism, philosophical humor, and free spirit', style: 'adventurous and honest' },
+  Capricorn: { trait: 'strategic patience, earned mastery, and dependable grit', style: 'steady and ambitious' },
+  Aquarius: { trait: 'refreshing originality, inventive thinking, and cool individuality', style: 'visionary and authentic' },
+  Pisces: { trait: 'soulful resonance, artistic sensitivity, and empathetic depth', style: 'gentle and imaginative' }
+};
+
+function getZodiacProfile(sign) {
+  return ZODIAC_PROFILES[sign] || { trait: 'versatile adaptability and intuitive warmth', style: 'balanced and thoughtful' };
+}
+
+/**
+ * Enriches a reading object with all category-specific UI configuration,
+ * including icons, badges, titles, metric display names, and next-move lists.
+ */
+function enrichReadingWithCategoryMeta(reading, cardFocus, person1, person2 = null) {
+  if (!reading || typeof reading !== 'object') return reading;
+
+  const config = calculateCategoryScores(cardFocus, person1, person2);
+
+  if (!reading.summary || typeof reading.summary !== 'object') {
+    reading.summary = {};
+  }
+
+  // Ensure category branding and icons are attached
+  reading.summary.categoryKey = config.categoryKey;
+  reading.summary.categoryName = config.categoryName;
+  reading.summary.categoryIcon = config.categoryIcon;
+  reading.summary.subtitle = config.subtitle;
+  reading.summary.reportIcon = config.reportIcon;
+  reading.summary.scoreLabel = config.scoreLabel;
+  reading.summary.personaLabel = config.personaLabel;
+  reading.summary.badgeImg = config.badgeImg;
+  reading.summary.strengthsTitle = config.strengthsTitle;
+  reading.summary.strengthsIcon = config.strengthsIcon;
+  reading.summary.watchOutTitle = config.watchOutTitle;
+  reading.summary.nextMoveTitle = config.nextMoveTitle;
+  if (!reading.summary.title) {
+    reading.summary.title = config.title;
+  }
+  if (typeof reading.summary.score !== 'number' || reading.summary.score < 50 || reading.summary.score > 100) {
+    reading.summary.score = config.score;
+  }
+  if (!reading.summary.label) {
+    reading.summary.label = config.label;
+  }
+
+  // Map 5 metrics with their category displayLabel and icons
+  if (Array.isArray(reading.summary.metrics) && reading.summary.metrics.length > 0) {
+    reading.summary.metrics = reading.summary.metrics.map((m, idx) => {
+      const cfg = config.metrics[idx] || config.metrics[0];
+      const val = typeof m.value === 'number' ? Math.max(70, Math.min(99, Math.round(m.value))) : cfg.base;
+      return {
+        label: m.label || cfg.label,
+        displayLabel: cfg.displayLabel || m.label || cfg.label,
+        icon: cfg.icon || '✨',
+        value: val
+      };
+    });
+  } else {
+    reading.summary.metrics = config.metrics;
+  }
+
+  if (!reading.sections || typeof reading.sections !== 'object') {
+    reading.sections = {};
+  }
+
+  // Ensure verdictHeadline is present
+  if (!reading.sections.verdictHeadline) {
+    reading.sections.verdictHeadline = config.verdictHeadline;
+  }
+  reading.summary.verdictHeadline = reading.sections.verdictHeadline;
+
+  // Ensure nextMoveList is populated
+  if (!Array.isArray(reading.sections.nextMoveList) || reading.sections.nextMoveList.length === 0) {
+    if (reading.sections.nextMove && typeof reading.sections.nextMove === 'string') {
+      const parts = reading.sections.nextMove
+        .split(/(?:[.,;]\s+|\band\b\s+)/)
+        .map(s => s.trim().replace(/^[•\-\*]\s*/, ''))
+        .filter(s => s.length > 5);
+      if (parts.length >= 2) {
+        reading.sections.nextMoveList = parts.slice(0, 4);
+      }
+    }
+    if (!Array.isArray(reading.sections.nextMoveList) || reading.sections.nextMoveList.length === 0) {
+      const defaultLists = {
+        karma_is_loading: [
+          'Let go of what no longer serves your peace',
+          'Build a consistent 10-minute morning routine',
+          'Practice self-compassion when plans pivot',
+          'Focus on long-term calm over quick reactions'
+        ],
+        future_millionaire: [
+          'Pick one primary high-leverage goal for this quarter',
+          'Automate your savings and investment transfers',
+          'Ship or demonstrate your latest skillset publicly',
+          'Focus on consistent execution over endless planning'
+        ],
+        bond_check: [
+          'Keep communication direct and low-pressure',
+          'Celebrate each other’s small personal wins',
+          'Respect individual decompression space',
+          'Plan regular uninterrupted catch-up sessions'
+        ],
+        dating_mood_on: [
+          'Plan a date that encourages natural conversation',
+          'Be clear and candid about what brings you joy',
+          'Give each other room to express emotions at own pace',
+          'Keep the playful banter and curiosity alive'
+        ]
+      };
+      reading.sections.nextMoveList = defaultLists[config.categoryKey] || defaultLists.dating_mood_on;
+    }
+  }
+
+  // Auto-populate legacy fields for backwards compatibility with test suites
+  ensureLegacyFields(reading);
+
+  return reading;
+}
+
 /**
  * Generates an intelligent, witty, concise mock reading written like a clever friend.
  * Strictly adheres to category boundaries and includes both past and future reflections.
- * Results dynamically adapt to individual's Sun Sign, Life Path, and Names.
+ * Results dynamically adapt to individual's Sun Sign, Life Path, Birthplace, and Names.
  */
 function generateMockReading(data) {
   const isTwoPerson = Boolean(data.isTwoPerson && data.person1 && data.person2);
@@ -454,6 +583,11 @@ function generateMockReading(data) {
   const p2 = isTwoPerson ? data.person2 : null;
   const name1 = p1.name || 'Seeker';
   const name2 = p2 ? (p2.name || 'Partner') : '';
+
+  const p1Prof = getZodiacProfile(p1.sunSign);
+  const p2Prof = p2 ? getZodiacProfile(p2.sunSign) : null;
+  const p1PlaceStr = p1.birthplace && p1.birthplace !== 'Not specified' ? `rooted in ${p1.birthplace}` : 'shaped by your path';
+  const p2PlaceStr = p2 && p2.birthplace && p2.birthplace !== 'Not specified' ? `rooted in ${p2.birthplace}` : 'shaped by your path';
 
   const summary = calculateCategoryScores(cardFocus, p1, p2);
 
@@ -471,36 +605,36 @@ function generateMockReading(data) {
 
     sections = {
       past: isTwoPerson
-        ? `Looking back, the romantic bond between ${name1} and ${name2} started with strong curiosity and good chemistry. You've already shared some meaningful and fun moments together.`
-        : `Looking back, ${name1}, your past romantic experiences and dating patterns have taught you patience and what truly matters in love.`,
+        ? `Looking back, the romantic sparks between ${name1} and ${name2} ignited through a mix of ${p1Prof.trait} and ${p2Prof.trait}. From early conversations ${p1PlaceStr} and ${p2PlaceStr}, you sensed an uncommon mutual curiosity.`
+        : `Looking back, ${name1}, your past dating experiences shaped by ${p1Prof.trait} taught you to value genuine emotional reciprocity over surface-level charm.`,
       present: isTwoPerson
-        ? `${name1} & ${name2}, there's a real romantic connection between you two. You enjoy each other's company, feel comfortable being real, and are slowly building trust.`
-        : `${name1}, you are in a confident romantic space. There's real chemistry and positive energy around your dating vibes right now.`,
+        ? `${name1} & ${name2}, your current romantic rhythm feels magnetic. You balance ${name1}'s ${p1Prof.style} energy with ${name2}'s ${p2Prof.style} warmth, creating a genuine space where both of you can drop the social mask.`
+        : `${name1}, you are currently stepping into a magnetic dating headspace where your ${p1Prof.trait} naturally attracts people who appreciate your authentic rhythm.`,
       future: isTwoPerson
-        ? `For ${name1} and ${name2}, this dating connection has potential to grow into something deeper, more stable, and long-lasting if you both keep it honest and consistent.`
-        : `For ${name1}, your romantic journey has potential to grow into something deeper, more stable, and long-lasting.`,
+        ? `For ${name1} and ${name2}, this dating connection has genuine potential to grow into something rare, stable, and deeply fulfilling as long as you keep communication open and celebrate small shared moments.`
+        : `For ${name1}, your romantic path is opening toward deeper emotional safety, exciting mutual chemistry, and a partner who matches your Life Path ${p1.lifePath} dedication.`,
       strengths: [
-        'Great understanding',
-        'Fun and positive vibe',
-        'Support each other',
-        'Bring out the best in each other'
+        `✨ ${name1} brings ${p1Prof.trait}`,
+        `💖 ${isTwoPerson ? `${name2} anchors with ${p2Prof.trait}` : 'Deep emotional authenticity and loyalty'}`,
+        '🔥 Effortless banter that turns ordinary dates into core memories',
+        '🤝 Mutual emotional safety where both feel heard and respected'
       ],
       watchOutFor: [
-        'Overthinking small things',
-        'Misunderstanding each other’s silence',
-        'Different pace in expressing emotions'
+        '🚩 Misinterpreting quiet decompression time as emotional distance',
+        '🚩 Letting overthinking create imaginary complications',
+        '🚩 Expecting each other to read minds instead of asking directly'
       ],
-      nextMove: 'Talk openly and honestly, give each other space, and keep the fun and friendship alive.',
+      nextMove: 'Plan an easygoing, low-pressure date with space for real conversation, and keep the playful banter alive.',
       nextMoveList: [
-        'Talk openly and honestly',
-        'Give each other space',
-        'Be clear about expectations',
-        'Keep the fun and friendship alive'
+        'Plan a date that encourages natural conversation',
+        'Be candid about what brings you joy',
+        'Give each other room to express emotions at own pace',
+        'Keep the playful banter and curiosity alive'
       ],
       verdictHeadline: 'A Strong & Promising Match!',
       finalVerdict: isTwoPerson
-        ? 'You two have a natural connection, a lot of good energy, and real potential to build something special together.'
-        : 'You have a natural romantic spark, lots of positive energy, and great potential to build a meaningful connection.'
+        ? `${name1} and ${name2} share a vibrant romantic frequency with high chemistry and real long-term potential.`
+        : `${name1}, trust your natural romantic instincts—you are ready for genuine connection.`
     };
 
     palmHighlights = [
@@ -526,30 +660,29 @@ function generateMockReading(data) {
     coreGift = 'Unspoken Understanding & Complementary Strengths';
 
     sections = {
-      past: `Looking back, the bond between ${name1} and ${name2 || 'your counterpart'} started with mutual respect and curiosity. You've already shared a few meaningful moments together.`,
-      present: `${name1} & ${name2 || 'your counterpart'}, you share a comfortable and positive connection. There's good understanding, shared interests, and a sense of support between you both.`,
-      future: `For ${name1} and ${name2 || 'your counterpart'}, this bond has the potential to grow stronger and more stable. With honesty, patience, and consistent effort, it can turn into a long-lasting relationship.`,
+      past: `Looking back, the bond between ${name1} and ${name2 || 'your counterpart'} was forged through mutual respect and shared adventures ${p1PlaceStr}. You learned early on that when life gets chaotic, you two can turn any mess into an inside joke.`,
+      present: `${name1} & ${name2 || 'your counterpart'}, your current duo synergy is unmatched. Combining ${name1}'s ${p1Prof.trait} with ${name2}'s ${p2Prof?.trait || 'grounded perspective'}, you form an alliance where unsaid thoughts get understood instantly.`,
+      future: `For ${name1} and ${name2 || 'your counterpart'}, this bond has an unbreakable trajectory as dynamic partners. Whether tackling new projects or navigating changes, your complementary perspectives will keep you thriving.`,
       strengths: [
-        'Good understanding & loyalty',
-        'Supportive of each other',
-        'Enjoy each other’s company & shared humor',
-        'Handle differences well'
+        `🤝 Ride-or-die loyalty and absolute trust between ${name1} and ${name2}`,
+        '😂 Top-tier shared humor that lightens up even stressful situations',
+        '🛡️ No-judgment sanctuary for sharing wild ideas and real feelings',
+        '⚡ Unbeatable teamwork where bold action meets grounded clarity'
       ],
       watchOutFor: [
-        'Overthinking small issues',
-        'Taking things personally',
-        'Different expectations',
-        'Not expressing feelings early'
+        '⚠️ Assuming the other person knows what you need without saying it',
+        '⚠️ Taking occasional bluntness personally during high-stress weeks',
+        '⚠️ Forgetting to celebrate small milestones amid busy schedules'
       ],
-      nextMove: 'Keep communication open, respect each other’s space, and plan more quality time together.',
+      nextMove: 'Keep communication open and direct, respect each other’s space, and plan regular uninterrupted catch-up sessions.',
       nextMoveList: [
-        'Keep the communication open',
-        'Be honest about your needs',
-        'Respect each other’s space',
-        'Plan more quality time together'
+        'Keep communication direct and low-pressure',
+        'Celebrate each other’s small personal wins',
+        'Respect individual decompression space',
+        'Plan regular uninterrupted catch-up sessions'
       ],
       verdictHeadline: 'A Strong & Balanced Bond!',
-      finalVerdict: 'You both have a genuine connection with great potential. With mutual trust, effort, and understanding, this bond can go a long way.'
+      finalVerdict: `${name1} and ${name2} have built a genuine connection with deep trust and undeniable synergy that only gets stronger with time.`
     };
 
     palmHighlights = [
@@ -575,29 +708,29 @@ function generateMockReading(data) {
     coreGift = 'Decisive Vision & Practical Resourcefulness';
 
     sections = {
-      past: `Looking back, ${name1}, you've always been curious and liked to explore new things. You may have tried different interests before finding your main focus.`,
-      present: `${name1}, you are in a learning and skill-building phase. You have good ideas, energy, and the drive to create something of your own.`,
-      future: `For ${name1}, a strong career growth is likely! You may get opportunities in a creative, tech, or leadership role, and your financial situation can improve over time.`,
+      past: `Looking back, ${name1}, your early professional path ${p1PlaceStr} taught you resourcefulness through hands-on trial and error. Your ${p1Prof.trait} pushed you to explore distinct avenues before zeroing in on your true creative leverage.`,
+      present: `${name1}, you are in a high-leverage skill synthesis phase. Your Life Path ${p1.lifePath} drive is directing your focus into tangible output, combining ${p1Prof.style} execution with an appetite for high-impact innovation.`,
+      future: `For ${name1}, your career momentum points toward expanding autonomy and leadership opportunities. While financial freedom is earned through compounding daily habits rather than magic, your disciplined learning curve positions you for significant professional milestones.`,
       strengths: [
-        'Quick learner',
-        'Creative problem solver',
-        'Good at planning',
-        'Don’t give up easily'
+        `🚀 ${p1Prof.trait} applied to practical execution`,
+        '💡 Sharp intuitive problem-solving and rapid learning curve',
+        `🎯 Life Path ${p1.lifePath} focus on building genuine, long-term value`,
+        '📊 Natural instinct for spotting overlooked opportunities in your field'
       ],
       watchOutFor: [
-        'Losing focus on core goals',
-        'Starting many things at once',
-        'Procrastination (we’ve all been there!)'
+        '⚠️ Spreading focus across too many shiny new projects simultaneously',
+        '⚠️ Postponing launch dates while seeking unattainable perfection',
+        '⚠️ Overworking without scheduling deliberate mental resets'
       ],
-      nextMove: 'Pick one main goal, automate your savings, and ship that big idea you keep polishing.',
+      nextMove: 'Pick one high-leverage project for this quarter, automate your savings, and ship your work with confidence.',
       nextMoveList: [
-        'Pick one main goal',
-        'Keep upskilling',
-        'Build a portfolio or work on a real project',
-        'Be consistent for long-term growth'
+        'Pick one primary high-leverage goal for this quarter',
+        'Automate your savings and investment transfers',
+        'Ship or demonstrate your latest skillset publicly',
+        'Focus on consistent execution over endless planning'
       ],
       verdictHeadline: 'You have a real "Millionaire Mindset"!',
-      finalVerdict: 'With focus, consistency, and smart choices, you can turn your big dreams into reality.'
+      finalVerdict: `${name1}, with steady execution, smart financial discipline, and belief in your skillset, your long-term ambitions are well within reach.`
     };
 
     palmHighlights = [
@@ -623,29 +756,29 @@ function generateMockReading(data) {
     coreGift = 'Honest Self-Awareness & Moral Courage';
 
     sections = {
-      past: `Looking back, ${name1}, you may have faced a few challenges that taught you patience, self-control, and what truly matters.`,
-      present: `${name1}, you're becoming more aware of your choices, habits, and emotions. You're trying to be a better version of yourself.`,
-      future: `For ${name1}, a more balanced, peaceful, and happier phase is likely ahead. You'll feel more confident and closer to your goals.`,
+      past: `Looking back, ${name1}, defining life lessons ${p1PlaceStr} challenged your patience and taught you discernment. Guided by your ${p1Prof.trait}, those hurdles stripped away illusions and revealed your inner resilience.`,
+      present: `${name1}, you are in a conscious phase of personal realignment. You're observing your daily habits and choices with fresh clarity, actively replacing reactive impulses with mindful boundaries.`,
+      future: `For ${name1}, a much more peaceful, balanced, and confident chapter is unfolding. As you let go of outdated burdens and honor your Life Path ${p1.lifePath} compass, momentum will flow with far less friction.`,
       strengths: [
-        'Resilient and adaptable',
-        'Learn from mistakes',
-        'Deeply feel and care',
-        'Always try to grow'
+        `🪷 ${p1Prof.trait} anchoring your moral compass`,
+        '🌱 Deep honest self-awareness and the courage to course-correct',
+        '🧠 Resilience that turns difficult experiences into hard-won wisdom',
+        `✨ Life Path ${p1.lifePath} capacity to stay centered amid worldly noise`
       ],
       watchOutFor: [
-        'Repeating old habits & avoidance traps',
-        'Getting affected by negativity',
-        'Being too hard on yourself & procrastination'
+        '⚠️ Repeating old avoidance traps when uncomfortable emotions arise',
+        '⚠️ Procrastination disguised as waiting for the perfect cosmic timing',
+        '⚠️ Over-criticizing yourself instead of celebrating small steps of progress'
       ],
-      nextMove: 'Let go of what no longer serves you, build a positive routine, and be kind to yourself.',
+      nextMove: 'Release what no longer serves your peace, establish a steady daily routine, and treat yourself with patience.',
       nextMoveList: [
-        'Let go of what no longer serves you',
-        'Build a positive routine',
-        'Be kind to yourself',
-        'Focus on long-term peace and happiness'
+        'Let go of what no longer serves your peace',
+        'Build a consistent 10-minute morning routine',
+        'Practice self-compassion when plans pivot',
+        'Focus on long-term calm over quick reactions'
       ],
       verdictHeadline: 'Your karma is in a "Reset & Grow" phase!',
-      finalVerdict: 'The universe is clearing old baggage and preparing you for a better, brighter you.'
+      finalVerdict: `${name1}, the universe is clearing out stale emotional clutter to make room for an authentic, grounded, and brighter version of you.`
     };
 
     palmHighlights = [
@@ -735,6 +868,8 @@ function generateMockReading(data) {
       cosmicAffirmation: sections.finalVerdict
     }
   };
+
+  enrichReadingWithCategoryMeta(reading, cardFocus, p1, p2);
 
   return reading;
 }
@@ -947,12 +1082,13 @@ TONE & STYLE GUIDELINES:
 5. Include specific, useful reflection tips.
 6. Include BOTH past-themed reflections AND future possibilities in every report.
 7. CRITICAL ENTERTAINMENT & SAFETY RULE: Never present guesses as verified facts. Palm photos cannot reliably establish personality, history, compatibility, or future. Present readings strictly as entertainment and self-reflection.
-8. CATEGORY RESTRICTIONS (STRICTLY ENFORCED):
-   - dating_mood_on (1 person): Focus EXCLUSIVELY on romantic life, dating patterns, emotional connection, green/red flags, practical dating tips, funny dating personality label, memorable closing line. NO career, NO wealth, NO general friendship predictions.
-   - bond_check (2 people): Focus EXCLUSIVELY on the relationship between Person 1 and Person 2. Trust, communication, duo strengths, funny duo personality label, resolving misunderstandings, future connection, practical tips. NO romance unless explicitly requested, NO career or wealth predictions.
-   - future_millionaire (1 person): Focus EXCLUSIVELY on career, learning, work style, financial habits, practical next steps, funny career personality label. NO romance, NO compatibility, NEVER guarantee wealth or millionaire status.
-   - karma_is_loading (1 person): Focus EXCLUSIVELY on personal growth, habits, choices, lessons, recurring challenges, strengths to build on, habits to change, small practical actions, funny karma personality label. NO romance, NO career/wealth.
-9. Return ONLY valid JSON matching the requested schema. No markdown code blocks, no backticks.`;
+8. CRITICAL PERSONALIZATION RULE: Generate unique, deeply personalized observations that directly incorporate the person's/people's submitted names, zodiac signs, life path numbers, birthplace, time of birth, and palm observations. NEVER reuse generic boilerplate, and NEVER use placeholder names like "abc", "xyz", "Seeker", "Partner", or "Counterpart" unless that is the exact name entered.
+9. CATEGORY RESTRICTIONS (STRICTLY ENFORCED):
+   - dating_mood_on (2 people): Focus EXCLUSIVELY on romantic chemistry, mutual sparks, dating vibes, green flags, romantic advice, and couple chemistry between Person 1 and Person 2. NO career, NO wealth, NO general friendship predictions.
+   - bond_check (2 people): Focus EXCLUSIVELY on the friendship, teamwork, and bond dynamic between Person 1 and Person 2. Mutual trust, communication, duo strengths, funny duo personality label, resolving misunderstandings, future connection, and bond tips. NO romance unless explicitly requested, NO career or wealth predictions. The sample names "abc" and "xyz" must never appear unless those are actually the submitted names.
+   - future_millionaire (1 person): Focus EXCLUSIVELY on career, learning, work style, financial habits, practical next steps, and funny career personality label. NO romance, NO compatibility. NEVER guarantee wealth or millionaire status.
+   - karma_is_loading (1 person): Focus EXCLUSIVELY on personal growth, habits, choices, lessons, recurring challenges, strengths to build on, habits to change, small practical actions, and funny karma personality label. NO romance, NO career/wealth.
+10. Return ONLY valid JSON matching the requested schema. No markdown code blocks, no backticks.`;
 
   const contentsParts = [];
 
@@ -986,17 +1122,22 @@ TONE & STYLE GUIDELINES:
 
     const isDating = cardFocus === 'dating_mood_on';
     userPrompt = isDating
-      ? `Generate a witty, uplifting TWO-PERSON Dating Mood & Romantic Chemistry reading for:
-- Category Focus: dating_mood_on (Focus strictly on romantic chemistry, mutual sparks, dating vibes, green flags, and romantic advice between these two people. No career/wealth predictions.)
-- Person 1: ${p1.name}, DOB: ${p1.dob || 'Not specified'}, Sign: ${p1.sunSign}, Path: ${p1.lifePath}, Birthplace: ${p1.birthplace}, Time: ${formatTimeBucket(p1.timeBucket)}
-- Person 2: ${p2.name}, DOB: ${p2.dob || 'Not specified'}, Sign: ${p2.sunSign}, Path: ${p2.lifePath}, Birthplace: ${p2.birthplace}, Time: ${formatTimeBucket(p2.timeBucket)}
+      ? `Generate a witty, deeply personalized TWO-PERSON Dating Mood & Romantic Chemistry reading for:
+- Category: dating_mood_on (Focus EXCLUSIVELY on romantic chemistry, mutual sparks, dating vibes, green flags, and romantic advice between these two people. No career/wealth predictions.)
+- Person 1: Name: ${p1.name}, DOB: ${p1.dob || 'Not specified'}, Sign: ${p1.sunSign}, Life Path: ${p1.lifePath}, Birthplace: ${p1.birthplace}, Birth Time: ${formatTimeBucket(p1.timeBucket)}
+- Person 2: Name: ${p2.name}, DOB: ${p2.dob || 'Not specified'}, Sign: ${p2.sunSign}, Life Path: ${p2.lifePath}, Birthplace: ${p2.birthplace}, Birth Time: ${formatTimeBucket(p2.timeBucket)}
 
-Return ONLY a pure JSON object adhering to:
+CRITICAL PERSONALIZATION INSTRUCTIONS:
+- You MUST explicitly weave both ${p1.name}'s and ${p2.name}'s names, their zodiac energies (${p1.sunSign} & ${p2.sunSign}), their life paths (${p1.lifePath} & ${p2.lifePath}), and their birthplaces into the past, present, and future sections.
+- Never use placeholder names like "abc" or "xyz".
+- If palm observations are available, weave mutual touch/warmth and palm line dynamics into the text.
+
+Return ONLY pure JSON matching:
 {
   "summary": {
     "title": "Dating Mood & Chemistry Check 💕",
-    "score": 93,
-    "label": "Electric Chemistry With Unspoken Mutual Sparks",
+    "score": 92,
+    "label": "Playful Flirts Who Actually Match Each Other's Effort 🔥",
     "metrics": [
       { "label": "Communication", "value": 90 },
       { "label": "Emotional Awareness", "value": 87 },
@@ -1006,13 +1147,15 @@ Return ONLY a pure JSON object adhering to:
     ]
   },
   "sections": {
-    "past": "1-3 short witty sentences on their past sparks and dating patterns framed as possibilities.",
-    "present": "1-3 short witty sentences on their current chemistry and romantic vibe.",
-    "future": "1-3 short witty sentences on future romantic possibilities.",
-    "strengths": ["✨ chemistry strength 1 with emoji", "💖 emotional strength 2 with emoji", "🔥 banter strength 3 with emoji"],
-    "watchOutFor": ["🚩 dating trap 1 with emoji", "🚩 dating trap 2 with emoji"],
+    "past": "1-3 short witty sentences referencing both ${p1.name} and ${p2.name}, their signs, and how their early romantic sparks or dating patterns shaped this connection.",
+    "present": "1-3 short witty sentences on their current romantic chemistry, banter, and mutual vibe.",
+    "future": "1-3 short witty sentences on future romantic possibilities for them together.",
+    "strengths": ["bullet 1 with emoji referencing both people", "bullet 2 with emoji", "bullet 3 with emoji", "bullet 4 with emoji"],
+    "watchOutFor": ["dating trap 1 with emoji", "dating trap 2 with emoji", "dating trap 3 with emoji"],
     "nextMove": "1-2 practical tips for an exciting, authentic date or connection.",
-    "finalVerdict": "One memorable, witty romantic closing verdict line."
+    "nextMoveList": ["action 1", "action 2", "action 3", "action 4"],
+    "verdictHeadline": "A Strong & Promising Match!",
+    "finalVerdict": "One memorable, witty romantic closing verdict line celebrating ${p1.name} and ${p2.name}."
   },
   "archetype": {
     "title": "${p1.name} & ${p2.name} · Romantic Chemistry",
@@ -1023,22 +1166,27 @@ Return ONLY a pure JSON object adhering to:
     "solarAlignment": "Magnetic"
   },
   "palmHighlights": [
-    { "line": "Dual Heart Line Romantic Harmony", "observation": "Aligned passionate curves", "meaning": "High reciprocal affection and romantic safety." },
+    { "line": "Dual Heart Line Romantic Harmony", "observation": "Passionate curvature aligned between both hands", "meaning": "High reciprocal affection and romantic safety." },
     { "line": "Venus Mount Passion & Warmth", "observation": "Warm energized base contours", "meaning": "Affectionate touch, mutual attraction, and thoughtful romantic gestures." },
     { "line": "Head Line Intellectual Sparks", "observation": "Complementary arches", "meaning": "Effortless verbal banter and shared humor." }
   ]
 }`
-      : `Generate a witty, uplifting TWO-PERSON Bond Check reading for:
-- Category Focus: bond_check (Focus strictly on the friendship/duo dynamic between these two people. No career/wealth predictions.)
-- Person 1: ${p1.name}, DOB: ${p1.dob || 'Not specified'}, Sign: ${p1.sunSign}, Path: ${p1.lifePath}, Birthplace: ${p1.birthplace}, Time: ${formatTimeBucket(p1.timeBucket)}
-- Person 2: ${p2.name}, DOB: ${p2.dob || 'Not specified'}, Sign: ${p2.sunSign}, Path: ${p2.lifePath}, Birthplace: ${p2.birthplace}, Time: ${formatTimeBucket(p2.timeBucket)}
+      : `Generate a witty, deeply personalized TWO-PERSON Bond Check reading for:
+- Category: bond_check (Focus EXCLUSIVELY on the friendship, synergy, teamwork, and bond dynamic between these two people. No career/wealth predictions. No romance unless requested.)
+- Person 1: Name: ${p1.name}, DOB: ${p1.dob || 'Not specified'}, Sign: ${p1.sunSign}, Life Path: ${p1.lifePath}, Birthplace: ${p1.birthplace}, Birth Time: ${formatTimeBucket(p1.timeBucket)}
+- Person 2: Name: ${p2.name}, DOB: ${p2.dob || 'Not specified'}, Sign: ${p2.sunSign}, Life Path: ${p2.lifePath}, Birthplace: ${p2.birthplace}, Birth Time: ${formatTimeBucket(p2.timeBucket)}
 
-Return ONLY a pure JSON object adhering to:
+CRITICAL PERSONALIZATION INSTRUCTIONS:
+- You MUST explicitly personalize the Past, Present, Future, Combined Strengths, Things to Watch For, and Bond Tips using both ${p1.name}'s and ${p2.name}'s details, their signs (${p1.sunSign} & ${p2.sunSign}), life paths (${p1.lifePath} & ${p2.lifePath}), and birthplaces.
+- The sample names "abc" and "xyz" must NEVER appear unless those are actually the submitted names.
+- Focus on unshakeable loyalty, comedic chemistry, resolving misunderstandings, and mutual support.
+
+Return ONLY pure JSON matching:
 {
   "summary": {
     "title": "Bond Check & Duo Synergy Index ⭐",
     "score": 91,
-    "label": "Partners in Controlled Chaos",
+    "label": "Partners in Controlled Chaos 😂",
     "metrics": [
       { "label": "Mutual Trust", "value": 93 },
       { "label": "Vibe Synergy", "value": 90 },
@@ -1048,13 +1196,15 @@ Return ONLY a pure JSON object adhering to:
     ]
   },
   "sections": {
-    "past": "1-3 short witty sentences on their past bonding patterns framed as possibilities.",
-    "present": "1-3 short witty sentences on their current connection and vibe.",
-    "future": "1-3 short witty sentences on future possibilities for their bond.",
-    "strengths": ["🤝 strength 1 with emoji", "😂 strength 2 with emoji", "🛡️ strength 3 with emoji"],
-    "watchOutFor": ["⚠️ misunderstanding trap 1 with emoji", "⚠️ misunderstanding trap 2 with emoji"],
-    "nextMove": "1-2 practical tips for maintaining a healthy connection.",
-    "finalVerdict": "One memorable, witty closing verdict line."
+    "past": "1-3 short witty sentences on how ${p1.name} and ${p2.name}'s dynamic formed, highlighting shared adventures or lessons.",
+    "present": "1-3 short witty sentences on their current connection, humor, and mutual understanding.",
+    "future": "1-3 short witty sentences on future possibilities for their duo partnership.",
+    "strengths": ["bullet 1 with emoji highlighting combined strength of ${p1.name} and ${p2.name}", "bullet 2 with emoji", "bullet 3 with emoji", "bullet 4 with emoji"],
+    "watchOutFor": ["misunderstanding trap 1 with emoji", "misunderstanding trap 2 with emoji", "misunderstanding trap 3 with emoji"],
+    "nextMove": "1-2 practical tips for keeping their bond healthy, low-stress, and fun.",
+    "nextMoveList": ["action 1", "action 2", "action 3", "action 4"],
+    "verdictHeadline": "A Strong & Balanced Bond!",
+    "finalVerdict": "One memorable, witty closing verdict line celebrating ${p1.name} and ${p2.name}."
   },
   "archetype": {
     "title": "${p1.name} & ${p2.name} · Cosmic Bond",
@@ -1065,11 +1215,11 @@ Return ONLY a pure JSON object adhering to:
     "solarAlignment": "Harmonious"
   },
   "palmHighlights": [
-    { "line": "Dual Heart Line Alignment", "observation": "Curving contours", "meaning": "High emotional safety and mutual warmth." },
-    { "line": "Venus Mount Harmony", "observation": "Vibrant base contours", "meaning": "Mutual love for food, humor, and easy hangouts." },
+    { "line": "Dual Heart Line Alignment", "observation": "Curving contours harmonizing in depth", "meaning": "High emotional safety, genuine warmth, and easy mutual forgiveness." },
+    { "line": "Venus Mount Harmony", "observation": "Vibrant base contours on both hands", "meaning": "Shared love for good food, humor, and easy hangouts." },
     { "line": "Head Line Synergy", "observation": "Complementary arches", "meaning": "One brings creative sparks, the other grounding clarity." }
   ]
-};`;
+}`;
   } else {
     // Single Person Prompt
     if (palmImage && !isDemoPalm) attachPalmImage(palmImage);
@@ -1082,27 +1232,30 @@ Return ONLY a pure JSON object adhering to:
         title: 'Dating Mood Vibe Check 💕',
         rules: 'Focus exclusively on romantic life, dating patterns, emotional connection, green/red flags, practical dating tips. NO career or wealth.',
         metricNames: ['Communication', 'Emotional Awareness', 'Romantic Confidence', 'Openness', 'Growth Potential'],
-        sampleLabel: 'Hopeless Romantic With High Standards'
+        sampleLabel: 'Hopeless Romantic With High Standards',
+        headline: 'A Strong & Promising Romantic Vibe!'
       },
       future_millionaire: {
         theme: 'Future Millionaire',
         title: 'Career & Wealth Blueprint 💰',
-        rules: 'Focus exclusively on career, work style, learning, financial habits, practical next steps. NO romance. Never guarantee wealth.',
+        rules: 'Focus exclusively on career, work style, learning, financial habits, practical next steps. NO romance. Never guarantee wealth or millionaire status.',
         metricNames: ['Career Drive', 'Money Mindfulness', 'Skill Adaptability', 'Strategic Focus', 'Breakthrough Potential'],
-        sampleLabel: 'CEO of Late-Night Big Ideas'
+        sampleLabel: 'The High-Impact Visionary ⚡',
+        headline: 'You have a real "Millionaire Mindset"!'
       },
       karma_is_loading: {
         theme: 'Karma Is Loading',
-        title: 'Karma & Personal Growth Radar 🔥',
+        title: 'Karma & Life Lessons Report 🔥',
         rules: 'Focus exclusively on personal growth, habits, choices, lessons, recurring challenges, habits worth changing, small actions. NO romance, NO career/wealth.',
         metricNames: ['Self-Awareness', 'Resilience', 'Habit Discipline', 'Emotional Balance', 'Destiny Alignment'],
-        sampleLabel: 'Evolving Soul With High Self-Honesty'
+        sampleLabel: 'The Grounded Philosopher 🌿',
+        headline: 'Your karma is in a "Reset & Grow" phase!'
       }
     };
 
     const cat = catInstructions[activeCat] || catInstructions.dating_mood_on;
 
-    userPrompt = `Generate a witty, personalized single-person reflection for:
+    userPrompt = `Generate a witty, deeply personalized single-person reflection for:
 - Seeker: ${seekerName}
 - Date of Birth: ${dob || 'Not specified'}
 - Tropical Sun Sign: ${sunSign}
@@ -1110,6 +1263,11 @@ Return ONLY a pure JSON object adhering to:
 - City: ${birthplace || 'Not specified'}
 - Birth Time: ${timeDesc}
 - Category: ${cat.theme} (${cat.rules})
+
+CRITICAL PERSONALIZATION INSTRUCTIONS:
+- You MUST weave ${seekerName}'s exact name, their zodiac sign (${sunSign}), Life Path (${lifePath}), and birthplace (${birthplace}) into the reflection paragraphs.
+- Never use placeholder names or generic boilerplate sentences.
+- Strictly adhere to category boundaries. For Future Millionaire, focus on career skills, learning, and smart money habits without guaranteeing wealth. For Karma Is Loading, focus on personal choices, self-awareness, and breaking old patterns.
 
 Return ONLY pure JSON matching:
 {
@@ -1126,16 +1284,18 @@ Return ONLY pure JSON matching:
     ]
   },
   "sections": {
-    "past": "1-3 short witty sentences on past patterns/lessons framed strictly as possibilities.",
-    "present": "1-3 short witty sentences on current vibe and reflections.",
+    "past": "1-3 short witty sentences referencing ${seekerName}'s background, early lessons, and how their ${sunSign} nature shaped past patterns.",
+    "present": "1-3 short witty sentences on their current vibe, habits, and mindset.",
     "future": "1-3 short witty sentences on future possibilities in this specific category.",
-    "strengths": ["bullet 1 with emoji", "bullet 2 with emoji", "bullet 3 with emoji"],
-    "watchOutFor": ["trap/red flag 1 with emoji", "trap/red flag 2 with emoji"],
+    "strengths": ["bullet 1 with emoji referencing ${seekerName}'s strengths", "bullet 2 with emoji", "bullet 3 with emoji", "bullet 4 with emoji"],
+    "watchOutFor": ["trap 1 with emoji", "trap 2 with emoji", "trap 3 with emoji"],
     "nextMove": "1-2 practical, specific reflection tips.",
-    "finalVerdict": "One memorable, witty closing punchline."
+    "nextMoveList": ["action 1", "action 2", "action 3", "action 4"],
+    "verdictHeadline": "${cat.headline}",
+    "finalVerdict": "One memorable, witty closing punchline for ${seekerName}."
   },
   "archetype": {
-    "title": "The Dynamic Trailblazer",
+    "title": "${seekerName} · The Strategic Builder",
     "zodiacSign": "${sunSign}",
     "element": "Fire & Air",
     "lifePathNumber": ${lifePath},
@@ -1170,7 +1330,13 @@ Return ONLY pure JSON matching:
     }
   };
 
-  const models = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+  const models = [
+    'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-flash-latest',
+    'gemini-3.1-flash-lite'
+  ];
   let lastError = null;
 
   for (const model of models) {
@@ -1182,7 +1348,7 @@ Return ONLY pure JSON matching:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(6000)
+        signal: AbortSignal.timeout(25000)
       });
 
       if (!response.ok) {
@@ -1202,6 +1368,10 @@ Return ONLY pure JSON matching:
       const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
       const parsed = JSON.parse(cleanJson);
 
+      const p1 = clientData.isTwoPerson ? clientData.person1 : clientData;
+      const p2 = clientData.isTwoPerson ? clientData.person2 : null;
+      enrichReadingWithCategoryMeta(parsed, clientData.cardFocus, p1, p2);
+
       if (validateReadingResult(parsed, clientData.cardFocus)) {
         parsed.meta = {
           generatedAt: new Date().toISOString(),
@@ -1218,7 +1388,7 @@ Return ONLY pure JSON matching:
   }
 
   if (lastError) {
-    console.warn('[gemini_api_warning] Live call did not succeed, falling back to mock engine.');
+    console.warn('[gemini_api_warning] Live call did not succeed:', lastError.message);
   }
   return null;
 }
@@ -1227,15 +1397,18 @@ Return ONLY pure JSON matching:
  * Main orchestration entry point
  */
 async function getReading(clientData) {
-  if (process.env.GEMINI_API_KEY) {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
     try {
       const liveResult = await generateGeminiReading(clientData);
       if (liveResult) {
         return liveResult;
       }
     } catch (err) {
-      console.warn('[reading_orchestration] Live interpretation failed; using mock fallback.');
+      console.error('[reading_orchestration] Live interpretation failed:', err.message);
     }
+    // When API key is configured and live call did not succeed:
+    // Strictly adhere to Requirement 6: Do not present generic fallback text as a personalized AI result!
+    throw new Error('Cosmic AI interpretation service is temporarily unavailable. Please try again.');
   }
 
   return generateMockReading(clientData);

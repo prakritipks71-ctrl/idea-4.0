@@ -1656,9 +1656,18 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify(payload)
     })
-      .then(res => {
+      .then(async res => {
         if (!res.ok) {
-          throw new Error(`Server returned HTTP ${res.status}`);
+          let errMsg = `Server returned HTTP ${res.status}`;
+          try {
+            const errData = await res.json();
+            if (errData && errData.error) {
+              errMsg = errData.error;
+            }
+          } catch {
+            // Use status fallback
+          }
+          throw new Error(errMsg);
         }
         return res.json();
       })
@@ -1697,7 +1706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('[reading_error]', err);
         animationTimeouts.forEach(t => clearTimeout(t));
         if (errorMessageText) {
-          errorMessageText.textContent = 'We could not complete your reflection due to a temporary connection delay. Please try again.';
+          errorMessageText.textContent = err.message || 'We could not complete your reflection due to a temporary connection delay. Please try again.';
         }
         showScreen('error');
       });
