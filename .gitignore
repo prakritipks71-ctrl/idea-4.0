@@ -4,7 +4,7 @@ node_modules/
 # Environment and secrets (API keys live only in .env, never committed)
 .env
 .env.*
-!.env.example
+.env.example
 
 # Logs (Rule 5: Keep logs sanitized, do not commit temp logs)
 logs/
