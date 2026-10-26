@@ -21,8 +21,53 @@ const STORAGE_KEYS = {
   DOB: 'ai_jyotish_dob',
   BIRTHPLACE: 'ai_jyotish_birthplace',
   TIME_BUCKET: 'ai_jyotish_time_bucket',
+  BIRTH_TIME: 'ai_jyotish_birth_time',
   SUN_SIGN: 'ai_jyotish_sun_sign',
-  LIFE_PATH: 'ai_jyotish_life_path'
+  LIFE_PATH: 'ai_jyotish_life_path',
+  CARD_FOCUS: 'ai_jyotish_card_focus',
+  P2_NAME: 'ai_jyotish_p2_name',
+  P2_DOB: 'ai_jyotish_p2_dob',
+  P2_BIRTHPLACE: 'ai_jyotish_p2_birthplace',
+  P2_TIME_BUCKET: 'ai_jyotish_p2_time_bucket',
+  P2_BIRTH_TIME: 'ai_jyotish_p2_birth_time',
+  P2_SUN_SIGN: 'ai_jyotish_p2_sun_sign',
+  P2_LIFE_PATH: 'ai_jyotish_p2_life_path'
+};
+
+// Metadata for the 4 Celestial Cards featured in the video
+const CARD_FOCUS_META = {
+  dating_mood_on: {
+    key: 'dating_mood_on',
+    name: 'Dating Mood On',
+    emoji: '💕',
+    subtitle: 'Romantic Vibe, Chemistry & Dating Tips',
+    targetCardId: 'card-witty-present',
+    isTwoPerson: true
+  },
+  future_millionaire: {
+    key: 'future_millionaire',
+    name: 'Future Millionaire',
+    emoji: '💰',
+    subtitle: 'Career Breakthroughs & Money Habits',
+    targetCardId: 'card-witty-present',
+    isTwoPerson: false
+  },
+  karma_is_loading: {
+    key: 'karma_is_loading',
+    name: 'Karma is Loading',
+    emoji: '🔥',
+    subtitle: 'Personal Growth, Habits & Fate',
+    targetCardId: 'card-witty-present',
+    isTwoPerson: false
+  },
+  bond_check: {
+    key: 'bond_check',
+    name: 'Bond Check',
+    emoji: '⭐',
+    subtitle: 'Cosmic Harmony & Dual Palm Resonance',
+    targetCardId: 'card-witty-present',
+    isTwoPerson: true
+  }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // DOM Elements - Screens
   const screens = {
+    intro: document.getElementById('screen-intro'),
     welcome: document.getElementById('screen-welcome'),
     details: document.getElementById('screen-details'),
     palm: document.getElementById('screen-palm'),
@@ -37,6 +83,31 @@ document.addEventListener('DOMContentLoaded', () => {
     results: document.getElementById('screen-results'),
     error: document.getElementById('screen-error')
   };
+
+  // DOM Elements - Intro Video & Cards
+  const introVideo = document.getElementById('intro-video');
+  const btnIntroReplay = document.getElementById('btn-intro-replay');
+  const btnIntroSound = document.getElementById('btn-intro-sound');
+  const soundIcon = document.getElementById('sound-icon');
+  const soundText = document.getElementById('sound-text');
+  const btnIntroSkip = document.getElementById('btn-intro-skip');
+  const introSoundPrompt = document.getElementById('intro-sound-prompt');
+  const cardsReadyBanner = document.getElementById('cards-ready-banner');
+  const introCardsOverlay = document.getElementById('intro-cards-overlay');
+  const cardHotspots = document.querySelectorAll('.card-hotspot');
+  const cardChips = document.querySelectorAll('.card-chip');
+  const btnExploreAll = document.getElementById('btn-explore-all');
+  const btnWatchIntro = document.getElementById('btn-watch-intro');
+
+  // DOM Elements - Details Focus Banner
+  const activeFocusContainer = document.getElementById('active-focus-container');
+  const focusBadgeEmoji = document.getElementById('focus-badge-emoji');
+  const focusBadgeTitle = document.getElementById('focus-badge-title');
+  const btnChangeFocus = document.getElementById('btn-change-focus');
+
+  // DOM Elements - Results Focus Highlight Banner
+  const resultsFocusBanner = document.getElementById('results-focus-banner');
+  const resultsFocusText = document.getElementById('results-focus-text');
 
   // DOM Elements - Welcome Screen
   const btnStart = document.getElementById('btn-start');
@@ -47,24 +118,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputFirstName = document.getElementById('input-first-name');
   const inputDob = document.getElementById('input-dob');
   const inputBirthplace = document.getElementById('input-birthplace');
-  const timeChips = document.querySelectorAll('.chip-btn');
+  const inputTime = document.getElementById('input-time');
   const btnNextToPalm = document.getElementById('btn-next-to-palm');
+  const btnNextToPalmText = document.getElementById('btn-next-to-palm-text');
 
   const hintFirstName = document.getElementById('hint-first-name');
   const hintDob = document.getElementById('hint-dob');
   const hintBirthplace = document.getElementById('hint-birthplace');
+  const hintTime = document.getElementById('hint-time');
 
-  // DOM Elements - Palm Screen
+  // DOM Elements - Screen 2 Two-Person Details
+  const sectionPerson2 = document.getElementById('section-person-2');
+  const p1TagPill = document.getElementById('p1-tag-pill');
+  const p2TagPill = document.getElementById('p2-tag-pill');
+  const inputP2Name = document.getElementById('input-p2-name');
+  const inputP2Dob = document.getElementById('input-p2-dob');
+  const inputP2Birthplace = document.getElementById('input-p2-birthplace');
+  const inputP2Time = document.getElementById('input-p2-time');
+  const hintP2Name = document.getElementById('hint-p2-name');
+  const hintP2Dob = document.getElementById('hint-p2-dob');
+  const hintP2Birthplace = document.getElementById('hint-p2-birthplace');
+  const hintP2Time = document.getElementById('hint-p2-time');
+
+  // DOM Elements - Palm Screen (Single & Dual Mode)
+  const palmHeading = document.getElementById('palm-heading');
+  const palmSubheading = document.getElementById('palm-subheading');
+  const palmSingleContainer = document.getElementById('palm-single-container');
+  const palmDualContainer = document.getElementById('palm-dual-container');
+
   const btnBackToDetails = document.getElementById('btn-back-to-details');
   const palmInput = document.getElementById('palm-input');
   const btnPickPhoto = document.getElementById('btn-pick-photo');
   const pickPhotoText = document.getElementById('pick-photo-text');
   const btnDemoPalm = document.getElementById('btn-demo-palm');
   const btnAnalyzePalm = document.getElementById('btn-analyze-palm');
+  const btnAnalyzePalmText = document.getElementById('btn-analyze-palm-text');
   const palmPreviewContainer = document.getElementById('palm-preview-container');
   const palmPreviewImg = document.getElementById('palm-preview-img');
   const palmStatusBadge = document.getElementById('palm-status-badge');
   const palmStatusText = document.getElementById('palm-status-text');
+
+  // Dual Palm Elements
+  const palmInputP1 = document.getElementById('palm-input-p1');
+  const btnPickPhotoP1 = document.getElementById('btn-pick-photo-p1');
+  const pickPhotoTextP1 = document.getElementById('pick-photo-text-p1');
+  const btnDemoPalmP1 = document.getElementById('btn-demo-palm-p1');
+  const palmPreviewImgP1 = document.getElementById('palm-preview-img-p1');
+  const palmStatusBadgeP1 = document.getElementById('palm-status-badge-p1');
+  const palmStatusTextP1 = document.getElementById('palm-status-text-p1');
+  const dualP1Label = document.getElementById('dual-p1-label');
+
+  const palmInputP2 = document.getElementById('palm-input-p2');
+  const btnPickPhotoP2 = document.getElementById('btn-pick-photo-p2');
+  const pickPhotoTextP2 = document.getElementById('pick-photo-text-p2');
+  const btnDemoPalmP2 = document.getElementById('btn-demo-palm-p2');
+  const palmPreviewImgP2 = document.getElementById('palm-preview-img-p2');
+  const palmStatusBadgeP2 = document.getElementById('palm-status-badge-p2');
+  const palmStatusTextP2 = document.getElementById('palm-status-text-p2');
+  const dualP2Label = document.getElementById('dual-p2-label');
+
+  const btnDemoPalmsBoth = document.getElementById('btn-demo-palms-both');
 
   // DOM Elements - Reimagined Loading Screen (Neon Hand Scanner)
   const handScannerViewport = document.getElementById('hand-scanner-viewport');
@@ -120,6 +233,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopySummary = document.getElementById('btn-copy-summary');
   const btnStartNew = document.getElementById('btn-start-new');
 
+  // DOM Elements - Witty Top Summary & Snappy Cards
+  const summaryCategoryTitle = document.getElementById('summary-category-title');
+  const summarySeekerSubtitle = document.getElementById('summary-seeker-subtitle');
+  const summaryVibeScore = document.getElementById('summary-vibe-score');
+  const summaryVibeLabel = document.getElementById('summary-vibe-label');
+  const summaryMetricsList = document.getElementById('summary-metrics-list');
+  const rPastText = document.getElementById('r-past-text');
+  const rPresentText = document.getElementById('r-present-text');
+  const rFutureWittyText = document.getElementById('r-future-text');
+  const rStrengthsList = document.getElementById('r-strengths-list');
+  const rWatchOutList = document.getElementById('r-watch-out-list');
+  const rNextMoveText = document.getElementById('r-next-move-text');
+  const rFinalVerdictText = document.getElementById('r-final-verdict-text');
+
+  // DOM Elements - New Screenshot Design Elements
+  const btnResultsBack = document.getElementById('btn-results-back');
+  const btnResultsDownload = document.getElementById('btn-results-download');
+  const btnResultsShare = document.getElementById('btn-results-share');
+  const resultsCategoryIcon = document.getElementById('results-category-icon');
+  const resultsCategoryName = document.getElementById('results-category-name');
+  const resultsSubtitlePill = document.getElementById('results-subtitle-pill');
+  const summaryReportIcon = document.getElementById('summary-report-icon');
+  const summaryReportTitle = document.getElementById('summary-report-title');
+  const summaryScoreLabel = document.getElementById('summary-score-label');
+  const summaryPersonaLabel = document.getElementById('summary-persona-label');
+  const rStrengthsIcon = document.getElementById('r-strengths-icon');
+  const rStrengthsTitle = document.getElementById('r-strengths-title');
+  const rWatchOutTitle = document.getElementById('r-watch-out-title');
+  const rNextMoveTitle = document.getElementById('r-next-move-title');
+  const rNextMoveList = document.getElementById('r-next-move-list');
+  const verdictBadgeImg = document.getElementById('verdict-badge-img');
+  const rVerdictHeadline = document.getElementById('r-verdict-headline');
+
   // DOM Elements - Error Screen
   const errorMessageText = document.getElementById('error-message-text');
   const btnRetry = document.getElementById('btn-retry');
@@ -130,15 +276,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // State
   let selectedTimeBucket = 'unsure';
+  let selectedTimeBucketP2 = 'unknown';
   let sanitizedPalmDataUrl = null;
+  let sanitizedPalmDataUrlP1 = null;
+  let sanitizedPalmDataUrlP2 = null;
   let isDemoPalm = false;
+  let isDemoPalmP1 = false;
+  let isDemoPalmP2 = false;
   let currentReadingData = null;
   let loadingInterval = null;
+  let selectedCardFocus = null;
+
+  function isTwoPersonMode() {
+    return Boolean(
+      selectedCardFocus &&
+      (selectedCardFocus.key === 'dating_mood_on' || selectedCardFocus.key === 'bond_check' || selectedCardFocus.isTwoPerson === true)
+    );
+  }
+
+  function updateTwoPersonModeUI() {
+    const twoPerson = isTwoPersonMode();
+    if (sectionPerson2) {
+      sectionPerson2.style.display = twoPerson ? 'block' : 'none';
+    }
+    if (p1TagPill) {
+      p1TagPill.style.display = twoPerson ? 'inline-flex' : 'none';
+    }
+    if (btnNextToPalmText) {
+      btnNextToPalmText.textContent = twoPerson ? 'Continue to Dual Palm Reading' : 'Continue to Palm Reading';
+    }
+
+    if (palmSingleContainer && palmDualContainer) {
+      if (twoPerson) {
+        palmSingleContainer.style.display = 'none';
+        palmDualContainer.style.display = 'flex';
+        if (palmHeading) palmHeading.textContent = 'Upload 2 Palms ✋✋';
+        if (palmSubheading) {
+          palmSubheading.textContent = (selectedCardFocus && selectedCardFocus.key === 'dating_mood_on')
+            ? 'Upload clear palm photos for both Person 1 and Person 2 for celestial romantic chemistry analysis.'
+            : 'Upload clear palm photos for both Person 1 and Person 2 for celestial hand analysis.';
+        }
+        const p1Name = (inputFirstName && inputFirstName.value.trim()) || sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME) || 'Person 1';
+        const p2Name = (inputP2Name && inputP2Name.value.trim()) || sessionStorage.getItem(STORAGE_KEYS.P2_NAME) || 'Person 2';
+        if (dualP1Label) dualP1Label.textContent = `${p1Name}'s Palm`;
+        if (dualP2Label) dualP2Label.textContent = `${p2Name}'s Palm`;
+        if (btnAnalyzePalmText) {
+          btnAnalyzePalmText.textContent = (selectedCardFocus && selectedCardFocus.key === 'dating_mood_on')
+            ? 'Analyze Both Palms & Romantic Chemistry ✨'
+            : 'Analyze Both Palms & Compatibility ✨';
+        }
+        checkDualPalmCompletion();
+      } else {
+        palmSingleContainer.style.display = 'block';
+        palmDualContainer.style.display = 'none';
+        if (palmHeading) palmHeading.textContent = 'Show Your Palm ✋';
+        if (palmSubheading) palmSubheading.textContent = 'Upload your clear palm photo for celestial hand analysis.';
+        if (btnAnalyzePalmText) btnAnalyzePalmText.textContent = 'Analyze Palm & Stars ✨';
+        if (btnAnalyzePalm) {
+          btnAnalyzePalm.style.display = sanitizedPalmDataUrl ? 'inline-flex' : 'none';
+        }
+      }
+    }
+  }
+
+  function checkDualPalmCompletion() {
+    if (!isTwoPersonMode()) return;
+    const p1Ready = Boolean(sanitizedPalmDataUrlP1);
+    const p2Ready = Boolean(sanitizedPalmDataUrlP2);
+    if (btnAnalyzePalm) {
+      btnAnalyzePalm.style.display = (p1Ready && p2Ready) ? 'inline-flex' : 'none';
+    }
+  }
 
   // -------------------------------------------------------------
   // 1. Screen Router
   // -------------------------------------------------------------
   function showScreen(screenKey) {
+    if (screenKey === 'details' || screenKey === 'palm') {
+      updateTwoPersonModeUI();
+    }
     Object.keys(screens).forEach(key => {
       const el = screens[key];
       if (el) {
@@ -156,16 +372,237 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`[event] screen_navigated target=${screenKey}`);
   }
 
+  // -------------------------------------------------------------
+  // 1B. Intro Video & Interactive Cards Controller
+  // -------------------------------------------------------------
+  function initIntroVideo() {
+    if (!introVideo) return;
+
+    // Try unmuted playback first on initial website visit
+    introVideo.currentTime = 0;
+    introVideo.muted = false;
+
+    const playPromise = introVideo.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          console.log('[intro_video] Autoplay with sound succeeded');
+          updateSoundUI(true);
+          if (introSoundPrompt) introSoundPrompt.style.display = 'none';
+        })
+        .catch((err) => {
+          console.log('[intro_video] Browser blocked unmuted autoplay. Falling back to muted autoplay.', err);
+          introVideo.muted = true;
+          introVideo.play().then(() => {
+            updateSoundUI(false);
+            if (introSoundPrompt) introSoundPrompt.style.display = 'flex';
+          }).catch(e => {
+            console.warn('[intro_video] Autoplay failed entirely:', e);
+            if (introSoundPrompt) {
+              const label = introSoundPrompt.querySelector('.prompt-label');
+              if (label) label.textContent = 'Tap to Play Video ▶';
+              introSoundPrompt.style.display = 'flex';
+            }
+          });
+        });
+    }
+
+    // Unmute on clicking sound prompt
+    if (introSoundPrompt) {
+      introSoundPrompt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        unmuteVideo();
+      });
+    }
+
+    // Also tapping video directly when muted attempts to unmute
+    introVideo.addEventListener('click', () => {
+      if (introVideo.muted) {
+        unmuteVideo();
+      }
+    });
+
+    // Sound toggle button in top bar
+    if (btnIntroSound) {
+      btnIntroSound.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (introVideo.muted) {
+          unmuteVideo();
+        } else {
+          introVideo.muted = true;
+          updateSoundUI(false);
+          showToast('🔇 Video muted');
+        }
+      });
+    }
+
+    // Replay button in top bar
+    if (btnIntroReplay) {
+      btnIntroReplay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        replayIntroVideo();
+      });
+    }
+
+    // Skip button in top bar
+    if (btnIntroSkip) {
+      btnIntroSkip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        skipIntroVideo();
+      });
+    }
+
+    // When cards animate and settle (around 2.5 seconds), activate card hotspots
+    introVideo.addEventListener('timeupdate', () => {
+      if (introVideo.currentTime >= 2.5) {
+        unlockCardsOverlay();
+      }
+    });
+
+    // When video ends, pause on final frame and ensure cards are unlocked
+    introVideo.addEventListener('ended', () => {
+      console.log('[intro_video] Video completed. Cards fully interactive.');
+      unlockCardsOverlay();
+    });
+  }
+
+  function unmuteVideo() {
+    if (!introVideo) return;
+    introVideo.muted = false;
+    updateSoundUI(true);
+    if (introSoundPrompt) introSoundPrompt.style.display = 'none';
+    if (introVideo.paused) introVideo.play().catch(() => {});
+    showToast('🔊 Sound enabled!');
+  }
+
+  function updateSoundUI(isUnmuted) {
+    if (soundIcon) soundIcon.textContent = isUnmuted ? '🔊' : '🔇';
+    if (soundText) soundText.textContent = isUnmuted ? 'Sound' : 'Muted';
+  }
+
+  function replayIntroVideo() {
+    if (!introVideo) return;
+    if (introCardsOverlay) introCardsOverlay.classList.remove('cards-ready');
+    if (cardsReadyBanner) cardsReadyBanner.style.display = 'none';
+    introVideo.currentTime = 0;
+    introVideo.play().catch(() => {});
+    showToast('↺ Replaying intro');
+  }
+
+  function skipIntroVideo() {
+    if (!introVideo) return;
+    const skipTarget = Math.max(2.5, (introVideo.duration && !isNaN(introVideo.duration)) ? introVideo.duration - 0.5 : 8.5);
+    introVideo.currentTime = skipTarget;
+    introVideo.pause();
+    unlockCardsOverlay();
+    showToast('✨ Cards unlocked!');
+  }
+
+  function unlockCardsOverlay() {
+    if (introCardsOverlay && !introCardsOverlay.classList.contains('cards-ready')) {
+      introCardsOverlay.classList.add('cards-ready');
+      if (cardsReadyBanner) cardsReadyBanner.style.display = 'flex';
+      console.log('[intro_cards] Cards overlay unlocked and clickable');
+    }
+  }
+
+  function handleCardSelected(cardKey) {
+    const meta = CARD_FOCUS_META[cardKey] || CARD_FOCUS_META.future_millionaire;
+    selectedCardFocus = meta;
+    sessionStorage.setItem(STORAGE_KEYS.CARD_FOCUS, cardKey);
+
+    console.log(`[event] card_selected card=${cardKey} target=${meta.targetCardId}`);
+
+    if (introVideo && !introVideo.paused) {
+      introVideo.pause();
+    }
+
+    updateTwoPersonModeUI();
+
+    // Update Details Screen focus banner
+    if (activeFocusContainer) {
+      if (focusBadgeEmoji) focusBadgeEmoji.textContent = meta.emoji;
+      if (focusBadgeTitle) focusBadgeTitle.textContent = `${meta.name} · ${meta.subtitle}`;
+      activeFocusContainer.style.display = 'flex';
+    }
+
+    const toastMsg = meta.isTwoPerson
+      ? `✨ Selected: ${meta.name}! Enter details for Person 1 and Person 2 below.`
+      : `✨ Selected: ${meta.name}! Enter your details below.`;
+    showToast(toastMsg);
+
+    // Open Step 1 (Details Form) directly with chosen card focus
+    showScreen('details');
+    setTimeout(() => {
+      if (inputFirstName) inputFirstName.focus();
+    }, 250);
+  }
+
+  // Bind click handlers to all hotspots directly on the video
+  cardHotspots.forEach(hotspot => {
+    hotspot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cardKey = hotspot.getAttribute('data-card');
+      handleCardSelected(cardKey);
+    });
+  });
+
+  // Bind click handlers to quick-tap card chips
+  cardChips.forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cardKey = chip.getAttribute('data-card');
+      handleCardSelected(cardKey);
+    });
+  });
+
+  // Continue without focus button
+  if (btnExploreAll) {
+    btnExploreAll.addEventListener('click', () => {
+      selectedCardFocus = null;
+      sessionStorage.removeItem(STORAGE_KEYS.CARD_FOCUS);
+      if (activeFocusContainer) activeFocusContainer.style.display = 'none';
+      if (introVideo && !introVideo.paused) introVideo.pause();
+      updateTwoPersonModeUI();
+      showScreen('details');
+    });
+  }
+
+  // Change focus button on details form
+  if (btnChangeFocus) {
+    btnChangeFocus.addEventListener('click', () => {
+      showScreen('intro');
+      unlockCardsOverlay();
+    });
+  }
+
+  // Watch intro button on welcome screen
+  if (btnWatchIntro) {
+    btnWatchIntro.addEventListener('click', () => {
+      showScreen('intro');
+      replayIntroVideo();
+    });
+  }
+
   // Navigation Event Listeners
   if (btnStart) {
     btnStart.addEventListener('click', () => {
+      updateTwoPersonModeUI();
       showScreen('details');
       setTimeout(() => inputFirstName && inputFirstName.focus(), 150);
     });
   }
 
   if (btnBackToWelcome) {
-    btnBackToWelcome.addEventListener('click', () => showScreen('welcome'));
+    btnBackToWelcome.addEventListener('click', () => {
+      // If a card was chosen, return to intro cards; otherwise welcome
+      if (selectedCardFocus) {
+        showScreen('intro');
+        unlockCardsOverlay();
+      } else {
+        showScreen('welcome');
+      }
+    });
   }
 
   if (btnBackToDetails) {
@@ -176,15 +613,81 @@ document.addEventListener('DOMContentLoaded', () => {
     btnErrorBack.addEventListener('click', () => showScreen('details'));
   }
 
+  if (btnResultsBack) {
+    btnResultsBack.addEventListener('click', () => {
+      showScreen('intro');
+      unlockCardsOverlay();
+    });
+  }
+
+  if (btnResultsDownload) {
+    btnResultsDownload.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  if (btnResultsShare) {
+    btnResultsShare.addEventListener('click', async () => {
+      const shareData = {
+        title: 'My AI Jyotish Reflection',
+        text: `Check out my cosmic reading on AI Jyotish! ${window.location.href}`,
+        url: window.location.href
+      };
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (e) {
+          // Ignored if cancelled
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied to clipboard! ✨');
+        } catch (e) {
+          showToast('Sharing available in supported browsers ✨');
+        }
+      }
+    });
+  }
+
   if (btnStartNew) {
     btnStartNew.addEventListener('click', () => {
       // Clean reset
       sanitizedPalmDataUrl = null;
+      sanitizedPalmDataUrlP1 = null;
+      sanitizedPalmDataUrlP2 = null;
       isDemoPalm = false;
+      isDemoPalmP1 = false;
+      isDemoPalmP2 = false;
       currentReadingData = null;
+      selectedCardFocus = null;
+      sessionStorage.removeItem(STORAGE_KEYS.CARD_FOCUS);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_NAME);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_DOB);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_BIRTHPLACE);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_TIME_BUCKET);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_SUN_SIGN);
+      sessionStorage.removeItem(STORAGE_KEYS.P2_LIFE_PATH);
+
+      if (inputP2Name) inputP2Name.value = '';
+      if (inputP2Dob) inputP2Dob.value = '';
+      if (inputP2Birthplace) inputP2Birthplace.value = '';
+
+      if (activeFocusContainer) activeFocusContainer.style.display = 'none';
+      if (resultsFocusBanner) resultsFocusBanner.style.display = 'none';
+      document.querySelectorAll('.result-card').forEach(c => c.classList.remove('card-focus-highlighted'));
+
       if (palmPreviewImg) {
         palmPreviewImg.src = '';
         palmPreviewImg.style.display = 'none';
+      }
+      if (palmPreviewImgP1) {
+        palmPreviewImgP1.src = '';
+        palmPreviewImgP1.style.display = 'none';
+      }
+      if (palmPreviewImgP2) {
+        palmPreviewImgP2.src = '';
+        palmPreviewImgP2.style.display = 'none';
       }
       if (btnAnalyzePalm) btnAnalyzePalm.style.display = 'none';
       if (palmStatusBadge) {
@@ -192,8 +695,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dot) dot.classList.remove('active');
         palmStatusText.textContent = 'No palm selected yet';
       }
+      if (palmStatusBadgeP1) {
+        const dot = palmStatusBadgeP1.querySelector('.status-dot');
+        if (dot) dot.classList.remove('active');
+        if (palmStatusTextP1) palmStatusTextP1.textContent = 'No palm selected';
+      }
+      if (palmStatusBadgeP2) {
+        const dot = palmStatusBadgeP2.querySelector('.status-dot');
+        if (dot) dot.classList.remove('active');
+        if (palmStatusTextP2) palmStatusTextP2.textContent = 'No palm selected';
+      }
       if (pickPhotoText) pickPhotoText.textContent = 'Take or Upload Palm Photo';
-      showScreen('welcome');
+      if (pickPhotoTextP1) pickPhotoTextP1.textContent = 'Upload Palm 1';
+      if (pickPhotoTextP2) pickPhotoTextP2.textContent = 'Upload Palm 2';
+      updateTwoPersonModeUI();
+      showScreen('intro');
+      replayIntroVideo();
     });
   }
 
@@ -204,20 +721,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedName = sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME);
     const savedDob = sessionStorage.getItem(STORAGE_KEYS.DOB);
     const savedPlace = sessionStorage.getItem(STORAGE_KEYS.BIRTHPLACE);
-    const savedTime = sessionStorage.getItem(STORAGE_KEYS.TIME_BUCKET);
+    const savedTime = sessionStorage.getItem(STORAGE_KEYS.BIRTH_TIME) || sessionStorage.getItem(STORAGE_KEYS.TIME_BUCKET);
+    const savedFocusKey = sessionStorage.getItem(STORAGE_KEYS.CARD_FOCUS);
+
+    const savedP2Name = sessionStorage.getItem(STORAGE_KEYS.P2_NAME);
+    const savedP2Dob = sessionStorage.getItem(STORAGE_KEYS.P2_DOB);
+    const savedP2Place = sessionStorage.getItem(STORAGE_KEYS.P2_BIRTHPLACE);
+    const savedP2Time = sessionStorage.getItem(STORAGE_KEYS.P2_BIRTH_TIME) || sessionStorage.getItem(STORAGE_KEYS.P2_TIME_BUCKET);
 
     if (savedName && inputFirstName) inputFirstName.value = savedName;
     if (savedDob && inputDob) inputDob.value = savedDob;
     if (savedPlace && inputBirthplace && savedPlace !== 'Not specified') inputBirthplace.value = savedPlace;
+    if (savedTime && inputTime && savedTime !== 'unknown') inputTime.value = savedTime;
 
-    if (savedTime) {
-      selectedTimeBucket = savedTime;
-      timeChips.forEach(chip => {
-        const isActive = chip.getAttribute('data-time') === savedTime;
-        chip.classList.toggle('active', isActive);
-        chip.setAttribute('aria-checked', isActive ? 'true' : 'false');
-      });
+    if (savedP2Name && inputP2Name) inputP2Name.value = savedP2Name;
+    if (savedP2Dob && inputP2Dob) inputP2Dob.value = savedP2Dob;
+    if (savedP2Place && inputP2Birthplace && savedP2Place !== 'Not specified') inputP2Birthplace.value = savedP2Place;
+    if (savedP2Time && inputP2Time && savedP2Time !== 'unknown') inputP2Time.value = savedP2Time;
+
+    if (savedFocusKey && CARD_FOCUS_META[savedFocusKey]) {
+      selectedCardFocus = CARD_FOCUS_META[savedFocusKey];
+      if (activeFocusContainer) {
+        if (focusBadgeEmoji) focusBadgeEmoji.textContent = selectedCardFocus.emoji;
+        if (focusBadgeTitle) focusBadgeTitle.textContent = `${selectedCardFocus.name} · ${selectedCardFocus.subtitle}`;
+        activeFocusContainer.style.display = 'flex';
+      }
     }
+
+    updateTwoPersonModeUI();
   }
 
   restoreSessionData();
@@ -261,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Birthplace is OPTIONAL
+  // Birthplace is REQUIRED
   if (inputBirthplace) {
     inputBirthplace.addEventListener('input', (e) => {
       sessionStorage.setItem(STORAGE_KEYS.BIRTHPLACE, e.target.value.slice(0, 50));
@@ -270,27 +801,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
     inputBirthplace.addEventListener('blur', () => {
       const val = (inputBirthplace.value || '').trim();
-      if (val.length > 50) {
+      if (!val) {
+        showHint(inputBirthplace, hintBirthplace, 'Please enter your birthplace (city).');
+      } else if (val.length > 50) {
         showHint(inputBirthplace, hintBirthplace, 'Please keep city name within 50 characters.');
       }
     });
   }
 
-  // Time of Birth Chips (One-word labels: Morning, Afternoon, Evening, Night, Unknown)
-  timeChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const timeVal = chip.getAttribute('data-time') || 'unknown';
-      selectedTimeBucket = timeVal;
-      sessionStorage.setItem(STORAGE_KEYS.TIME_BUCKET, timeVal);
+  // Time of Birth (Accurate Time Picker - REQUIRED)
+  if (inputTime) {
+    const handleTimeInput = (e) => {
+      const val = e.target.value;
+      sessionStorage.setItem(STORAGE_KEYS.BIRTH_TIME, val);
+      sessionStorage.setItem(STORAGE_KEYS.TIME_BUCKET, val);
+      clearHint(inputTime, hintTime);
+    };
 
-      timeChips.forEach(c => {
-        const isCurrent = c === chip;
-        c.classList.toggle('active', isCurrent);
-        c.setAttribute('aria-checked', isCurrent ? 'true' : 'false');
-      });
-      console.log(`[event] time_chip_selected time=${timeVal}`);
+    inputTime.addEventListener('input', handleTimeInput);
+    inputTime.addEventListener('change', handleTimeInput);
+
+    inputTime.addEventListener('blur', () => {
+      const val = (inputTime.value || '').trim();
+      if (!val) {
+        showHint(inputTime, hintTime, 'Please enter your accurate time of birth.');
+      }
     });
-  });
+  }
+
+  // Person 2 Input Handlers (Active in Dating Mood On & Bond Check modes)
+  if (inputP2Name) {
+    inputP2Name.addEventListener('input', (e) => {
+      sessionStorage.setItem(STORAGE_KEYS.P2_NAME, e.target.value);
+      clearHint(inputP2Name, hintP2Name);
+      if (dualP2Label) dualP2Label.textContent = `${e.target.value.trim() || 'Person 2'}'s Palm`;
+    });
+
+    inputP2Name.addEventListener('blur', () => {
+      const val = (inputP2Name.value || '').trim();
+      if (isTwoPersonMode() && val.length > 0 && val.length < 2) {
+        showHint(inputP2Name, hintP2Name, 'Please enter at least 2 characters for Person 2.');
+      }
+    });
+  }
+
+  if (inputP2Dob) {
+    const handleP2DobInput = (e) => {
+      const val = e.target.value;
+      sessionStorage.setItem(STORAGE_KEYS.P2_DOB, val);
+      clearHint(inputP2Dob, hintP2Dob);
+    };
+
+    inputP2Dob.addEventListener('input', handleP2DobInput);
+    inputP2Dob.addEventListener('change', handleP2DobInput);
+
+    inputP2Dob.addEventListener('blur', () => {
+      const val = (inputP2Dob.value || '').trim();
+      if (isTwoPersonMode() && val) {
+        const res = validateDob(val);
+        if (!res.valid) {
+          showHint(inputP2Dob, hintP2Dob, res.message);
+        }
+      }
+    });
+  }
+
+  if (inputP2Birthplace) {
+    inputP2Birthplace.addEventListener('input', (e) => {
+      sessionStorage.setItem(STORAGE_KEYS.P2_BIRTHPLACE, e.target.value.slice(0, 50));
+      clearHint(inputP2Birthplace, hintP2Birthplace);
+    });
+
+    inputP2Birthplace.addEventListener('blur', () => {
+      const val = (inputP2Birthplace.value || '').trim();
+      if (isTwoPersonMode()) {
+        if (!val) {
+          showHint(inputP2Birthplace, hintP2Birthplace, 'Please enter Person 2 birthplace (city).');
+        } else if (val.length > 50) {
+          showHint(inputP2Birthplace, hintP2Birthplace, 'Please keep city name within 50 characters.');
+        }
+      }
+    });
+  }
+
+  // Person 2 Time of Birth (Accurate Time Picker - REQUIRED)
+  if (inputP2Time) {
+    const handleP2TimeInput = (e) => {
+      const val = e.target.value;
+      sessionStorage.setItem(STORAGE_KEYS.P2_BIRTH_TIME, val);
+      sessionStorage.setItem(STORAGE_KEYS.P2_TIME_BUCKET, val);
+      clearHint(inputP2Time, hintP2Time);
+    };
+
+    inputP2Time.addEventListener('input', handleP2TimeInput);
+    inputP2Time.addEventListener('change', handleP2TimeInput);
+
+    inputP2Time.addEventListener('blur', () => {
+      const val = (inputP2Time.value || '').trim();
+      if (isTwoPersonMode() && !val) {
+        showHint(inputP2Time, hintP2Time, 'Please enter Person 2 accurate time of birth.');
+      }
+    });
+  }
 
   // Hint helpers
   function showHint(inputElement, hintElement, message) {
@@ -451,9 +1063,13 @@ document.addEventListener('DOMContentLoaded', () => {
         clearHint(inputDob, hintDob);
       }
 
-      // Birthplace is OPTIONAL
+      // Birthplace is REQUIRED
       const birthplaceVal = (inputBirthplace ? inputBirthplace.value : '').trim();
-      if (birthplaceVal.length > 50) {
+      if (!birthplaceVal || birthplaceVal.length < 2) {
+        showHint(inputBirthplace, hintBirthplace, 'Please enter your birthplace (city).');
+        isFormValid = false;
+        if (!firstInvalidInput) firstInvalidInput = inputBirthplace;
+      } else if (birthplaceVal.length > 50) {
         showHint(inputBirthplace, hintBirthplace, 'Please keep city name under 50 characters.');
         isFormValid = false;
         if (!firstInvalidInput) firstInvalidInput = inputBirthplace;
@@ -461,22 +1077,99 @@ document.addEventListener('DOMContentLoaded', () => {
         clearHint(inputBirthplace, hintBirthplace);
       }
 
+      // Time of Birth is REQUIRED
+      const timeVal = (inputTime ? inputTime.value : '').trim();
+      if (!timeVal) {
+        showHint(inputTime, hintTime, 'Please enter your accurate time of birth.');
+        isFormValid = false;
+        if (!firstInvalidInput) firstInvalidInput = inputTime;
+      } else {
+        clearHint(inputTime, hintTime);
+      }
+
+      // Person 2 Validation in Two-Person Mode (Dating Mood On & Bond Check)
+      let p2DobValidation = null;
+      let p2NameVal = '';
+      let p2BirthplaceVal = '';
+      let p2TimeVal = '';
+
+      if (isTwoPersonMode()) {
+        p2NameVal = (inputP2Name ? inputP2Name.value : '').trim();
+        if (!p2NameVal || p2NameVal.length < 2) {
+          showHint(inputP2Name, hintP2Name, 'Please enter Person 2\'s first name.');
+          isFormValid = false;
+          if (!firstInvalidInput) firstInvalidInput = inputP2Name;
+        } else {
+          clearHint(inputP2Name, hintP2Name);
+        }
+
+        const p2DobVal = (inputP2Dob ? inputP2Dob.value : '').trim();
+        p2DobValidation = validateDob(p2DobVal);
+        if (!p2DobValidation.valid) {
+          showHint(inputP2Dob, hintP2Dob, p2DobValidation.message);
+          isFormValid = false;
+          if (!firstInvalidInput) firstInvalidInput = inputP2Dob;
+        } else {
+          clearHint(inputP2Dob, hintP2Dob);
+        }
+
+        p2BirthplaceVal = (inputP2Birthplace ? inputP2Birthplace.value : '').trim();
+        if (!p2BirthplaceVal || p2BirthplaceVal.length < 2) {
+          showHint(inputP2Birthplace, hintP2Birthplace, 'Please enter Person 2\'s birthplace (city).');
+          isFormValid = false;
+          if (!firstInvalidInput) firstInvalidInput = inputP2Birthplace;
+        } else if (p2BirthplaceVal.length > 50) {
+          showHint(inputP2Birthplace, hintP2Birthplace, 'Please keep city name under 50 characters.');
+          isFormValid = false;
+          if (!firstInvalidInput) firstInvalidInput = inputP2Birthplace;
+        } else {
+          clearHint(inputP2Birthplace, hintP2Birthplace);
+        }
+
+        p2TimeVal = (inputP2Time ? inputP2Time.value : '').trim();
+        if (!p2TimeVal) {
+          showHint(inputP2Time, hintP2Time, 'Please enter Person 2\'s accurate time of birth.');
+          isFormValid = false;
+          if (!firstInvalidInput) firstInvalidInput = inputP2Time;
+        } else {
+          clearHint(inputP2Time, hintP2Time);
+        }
+      }
+
       if (!isFormValid) {
         if (firstInvalidInput) firstInvalidInput.focus();
         return;
       }
 
-      // Save to sessionStorage (Rule 3)
+      // Save Person 1 to sessionStorage (Rule 3)
       sessionStorage.setItem(STORAGE_KEYS.FIRST_NAME, firstNameVal);
       sessionStorage.setItem(STORAGE_KEYS.DOB, dobValidation.normalizedDob || dobVal);
-      sessionStorage.setItem(STORAGE_KEYS.BIRTHPLACE, birthplaceVal || 'Not specified');
-      sessionStorage.setItem(STORAGE_KEYS.TIME_BUCKET, selectedTimeBucket);
+      sessionStorage.setItem(STORAGE_KEYS.BIRTHPLACE, birthplaceVal);
+      sessionStorage.setItem(STORAGE_KEYS.BIRTH_TIME, timeVal);
+      sessionStorage.setItem(STORAGE_KEYS.TIME_BUCKET, timeVal);
 
       // Derive traits client-side (Rule 3)
       const sunSign = deriveSunSign(dobValidation.day, dobValidation.month);
       const lifePath = deriveLifePathNumber(dobValidation.day, dobValidation.month, dobValidation.year);
       sessionStorage.setItem(STORAGE_KEYS.SUN_SIGN, sunSign);
       sessionStorage.setItem(STORAGE_KEYS.LIFE_PATH, lifePath.toString());
+
+      // Save Person 2 if in two-person mode
+      if (isTwoPersonMode() && p2DobValidation && p2DobValidation.valid) {
+        sessionStorage.setItem(STORAGE_KEYS.P2_NAME, p2NameVal);
+        sessionStorage.setItem(STORAGE_KEYS.P2_DOB, p2DobValidation.normalizedDob || (inputP2Dob ? inputP2Dob.value : ''));
+        sessionStorage.setItem(STORAGE_KEYS.P2_BIRTHPLACE, p2BirthplaceVal);
+        sessionStorage.setItem(STORAGE_KEYS.P2_BIRTH_TIME, p2TimeVal);
+        sessionStorage.setItem(STORAGE_KEYS.P2_TIME_BUCKET, p2TimeVal);
+
+        const p2SunSign = deriveSunSign(p2DobValidation.day, p2DobValidation.month);
+        const p2LifePath = deriveLifePathNumber(p2DobValidation.day, p2DobValidation.month, p2DobValidation.year);
+        sessionStorage.setItem(STORAGE_KEYS.P2_SUN_SIGN, p2SunSign);
+        sessionStorage.setItem(STORAGE_KEYS.P2_LIFE_PATH, p2LifePath.toString());
+
+        if (dualP1Label) dualP1Label.textContent = `${firstNameVal}'s Palm`;
+        if (dualP2Label) dualP2Label.textContent = `${p2NameVal}'s Palm`;
+      }
 
       console.log(`[event] details_completed sunSign=${sunSign} lifePath=${lifePath}`);
       showScreen('palm');
@@ -611,8 +1304,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // -------------------------------------------------------------
-  // 7. Palm Screen Interaction & Handlers
+  // 7. Palm Screen Interaction & Handlers (Single & Dual Modes)
   // -------------------------------------------------------------
+  // Single Mode Photo Pick
   if (btnPickPhoto && palmInput) {
     btnPickPhoto.addEventListener('click', () => {
       palmInput.click();
@@ -624,19 +1318,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
-      // Validate image type
       if (!file.type.startsWith('image/')) {
         showToast('Please select a valid image file (JPEG, PNG, WebP).');
         return;
       }
 
-      // Check excessive file size (> 15MB)
       if (file.size > 15 * 1024 * 1024) {
         showToast('Image file is too large. Please select an image under 15MB.');
         return;
       }
 
-      // Update button text while sanitizing
       if (pickPhotoText) pickPhotoText.textContent = 'Processing photo...';
 
       sanitizeImageViaCanvas(file, (err, dataUrl) => {
@@ -649,7 +1340,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sanitizedPalmDataUrl = dataUrl;
         isDemoPalm = false;
 
-        // Update preview
         if (palmPreviewImg) {
           palmPreviewImg.src = dataUrl;
           palmPreviewImg.style.display = 'block';
@@ -671,31 +1361,108 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Demo Palm option
-  if (btnDemoPalm) {
-    btnDemoPalm.addEventListener('click', () => {
-      const demoUrl = generateDemoPalmDataUrl();
-      sanitizedPalmDataUrl = demoUrl;
-      isDemoPalm = true;
+  // --- DUAL MODE: Person 1 Palm Handlers ---
+  if (btnPickPhotoP1 && palmInputP1) {
+    btnPickPhotoP1.addEventListener('click', () => {
+      palmInputP1.click();
+    });
+  }
 
-      if (palmPreviewImg) {
-        palmPreviewImg.src = demoUrl;
-        palmPreviewImg.style.display = 'block';
+  if (palmInputP1) {
+    palmInputP1.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file for Person 1.');
+        return;
       }
 
-      if (palmStatusBadge) {
-        const dot = palmStatusBadge.querySelector('.status-dot');
-        if (dot) dot.classList.add('active');
-        palmStatusText.textContent = 'Demo Palm Configured';
+      if (file.size > 15 * 1024 * 1024) {
+        showToast('Image is too large. Please select an image under 15MB.');
+        return;
       }
 
-      if (btnAnalyzePalm) {
-        btnAnalyzePalm.style.display = 'inline-flex';
+      if (pickPhotoTextP1) pickPhotoTextP1.textContent = 'Processing...';
+
+      sanitizeImageViaCanvas(file, (err, dataUrl) => {
+        if (err) {
+          showToast('Could not process Person 1 photo.');
+          if (pickPhotoTextP1) pickPhotoTextP1.textContent = 'Upload Palm 1';
+          return;
+        }
+
+        sanitizedPalmDataUrlP1 = dataUrl;
+        sanitizedPalmDataUrl = dataUrl; // fallback for loading preview
+        isDemoPalmP1 = false;
+
+        if (palmPreviewImgP1) {
+          palmPreviewImgP1.src = dataUrl;
+          palmPreviewImgP1.style.display = 'block';
+        }
+
+        if (palmStatusBadgeP1) {
+          const dot = palmStatusBadgeP1.querySelector('.status-dot');
+          if (dot) dot.classList.add('active');
+          if (palmStatusTextP1) palmStatusTextP1.textContent = 'Palm 1 Ready';
+        }
+
+        if (pickPhotoTextP1) pickPhotoTextP1.textContent = 'Change Palm 1 📷';
+        checkDualPalmCompletion();
+        showToast('Person 1 palm uploaded! Now upload Person 2 palm.');
+      });
+    });
+  }
+
+  // --- DUAL MODE: Person 2 Palm Handlers ---
+  if (btnPickPhotoP2 && palmInputP2) {
+    btnPickPhotoP2.addEventListener('click', () => {
+      palmInputP2.click();
+    });
+  }
+
+  if (palmInputP2) {
+    palmInputP2.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file for Person 2.');
+        return;
       }
 
-      if (pickPhotoText) pickPhotoText.textContent = 'Upload Own Photo Instead';
-      console.log('[event] demo_palm_selected');
-      showToast('Demo palm loaded! Click Analyze Palm to continue.');
+      if (file.size > 15 * 1024 * 1024) {
+        showToast('Image is too large. Please select an image under 15MB.');
+        return;
+      }
+
+      if (pickPhotoTextP2) pickPhotoTextP2.textContent = 'Processing...';
+
+      sanitizeImageViaCanvas(file, (err, dataUrl) => {
+        if (err) {
+          showToast('Could not process Person 2 photo.');
+          if (pickPhotoTextP2) pickPhotoTextP2.textContent = 'Upload Palm 2';
+          return;
+        }
+
+        sanitizedPalmDataUrlP2 = dataUrl;
+        isDemoPalmP2 = false;
+
+        if (palmPreviewImgP2) {
+          palmPreviewImgP2.src = dataUrl;
+          palmPreviewImgP2.style.display = 'block';
+        }
+
+        if (palmStatusBadgeP2) {
+          const dot = palmStatusBadgeP2.querySelector('.status-dot');
+          if (dot) dot.classList.add('active');
+          if (palmStatusTextP2) palmStatusTextP2.textContent = 'Palm 2 Ready';
+        }
+
+        if (pickPhotoTextP2) pickPhotoTextP2.textContent = 'Change Palm 2 📷';
+        checkDualPalmCompletion();
+        showToast('Person 2 palm uploaded!');
+      });
     });
   }
 
@@ -733,12 +1500,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startCosmicReading() {
+    const isTwo = isTwoPersonMode();
+
+    if (isTwo) {
+      if (!sanitizedPalmDataUrlP1 || !sanitizedPalmDataUrlP2) {
+        showToast('Please upload palm photos for both Person 1 and Person 2.');
+        return;
+      }
+    } else {
+      if (!sanitizedPalmDataUrl) {
+        showToast('Please upload your palm photo to continue.');
+        return;
+      }
+    }
+
     showScreen('loading');
     resetNeonScanner();
 
-    // Display the full photo of the user's hand (or demo hand)
-    if (scannerPalmPhoto && sanitizedPalmDataUrl) {
-      scannerPalmPhoto.src = sanitizedPalmDataUrl;
+    // Display photo on scanner
+    const displayPhoto = isTwo
+      ? (sanitizedPalmDataUrlP1 || sanitizedPalmDataUrl)
+      : sanitizedPalmDataUrl;
+    if (scannerPalmPhoto && displayPhoto) {
+      scannerPalmPhoto.src = displayPhoto;
+    }
+
+    if (isTwo) {
+      const p1Name = sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME) || 'Person 1';
+      const p2Name = sessionStorage.getItem(STORAGE_KEYS.P2_NAME) || 'Person 2';
+      if (scannerKicker) scannerKicker.innerHTML = '<span class="pulse-star">✦</span> Dual Palmistry Scan';
+      if (scannerTitle) scannerTitle.textContent = 'Scanning Both Palms';
+      if (scannerSubtitle) scannerSubtitle.textContent = `Aligning compatibility vectors for ${p1Name} & ${p2Name}`;
     }
 
     // Step 1: Start 4-second active laser scan
@@ -748,12 +1540,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Progress and status during the 4-second scanning phase
     animationTimeouts.push(setTimeout(() => {
-      if (scannerStatus) scannerStatus.textContent = 'Analyzing skin topography & biometric depth vectors...';
+      if (scannerStatus) {
+        scannerStatus.textContent = isTwo
+          ? 'Scanning Person 1 & Person 2 skin topography & biometric contours...'
+          : 'Analyzing skin topography & biometric depth vectors...';
+      }
       if (loadingProgressBar) loadingProgressBar.style.width = '24%';
     }, 1400));
 
     animationTimeouts.push(setTimeout(() => {
-      if (scannerStatus) scannerStatus.textContent = 'Aligning palmar creases with celestial house coordinates...';
+      if (scannerStatus) {
+        scannerStatus.textContent = isTwo
+          ? 'Cross-referencing Heart & Life lines for mutual cosmic synergy...'
+          : 'Aligning palmar creases with celestial house coordinates...';
+      }
       if (loadingProgressBar) loadingProgressBar.style.width = '44%';
     }, 2800));
 
@@ -764,15 +1564,23 @@ document.addEventListener('DOMContentLoaded', () => {
         handScannerViewport.classList.add('mapped');      // Reveal the 4 neon lines and badges!
       }
       if (scannerKicker) scannerKicker.innerHTML = '<span class="pulse-star">✨</span> Celestial Alignment Complete';
-      if (scannerTitle) scannerTitle.textContent = 'Major Palm Lines Mapped';
-      if (scannerSubtitle) scannerSubtitle.textContent = '4 Primary Lines Identified · Heart, Head, Life & Fate';
-      if (scannerStatus) scannerStatus.textContent = 'Heart line, Head line, Life line & Fate line mapped';
+      if (scannerTitle) scannerTitle.textContent = isTwo ? 'Dual Palm Contours Mapped' : 'Major Palm Lines Mapped';
+      if (scannerSubtitle) scannerSubtitle.textContent = isTwo
+        ? 'Heart lines & Venus mounts aligned for compatibility'
+        : '4 Primary Lines Identified · Heart, Head, Life & Fate';
+      if (scannerStatus) scannerStatus.textContent = isTwo
+        ? 'Heart, Head, Life and Venus synergies mapped for both partners'
+        : 'Heart line, Head line, Life line & Fate line mapped';
       if (loadingProgressBar) loadingProgressBar.style.width = '68%';
     }, 4000));
 
     // Post-mapping synthesis updates
     animationTimeouts.push(setTimeout(() => {
-      if (scannerStatus) scannerStatus.textContent = 'Synthesizing planetary archetype with Hast Rekha contours...';
+      if (scannerStatus) {
+        scannerStatus.textContent = isTwo
+          ? 'Synthesizing two-chart astrology with dual Hast Rekha contours...'
+          : 'Synthesizing planetary archetype with Hast Rekha contours...';
+      }
       if (loadingProgressBar) loadingProgressBar.style.width = '88%';
     }, 5500));
 
@@ -781,24 +1589,63 @@ document.addEventListener('DOMContentLoaded', () => {
       if (loadingProgressBar) loadingProgressBar.style.width = '98%';
     }, 6800));
 
-    // Gather form traits
+    // Gather Person 1 traits
     const firstName = sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME) || 'Seeker';
     const dob = sessionStorage.getItem(STORAGE_KEYS.DOB) || '';
     const sunSign = sessionStorage.getItem(STORAGE_KEYS.SUN_SIGN) || 'Aries';
     const lifePath = parseInt(sessionStorage.getItem(STORAGE_KEYS.LIFE_PATH) || '7', 10);
     const birthplace = sessionStorage.getItem(STORAGE_KEYS.BIRTHPLACE) || 'Not specified';
-    const timeBucket = sessionStorage.getItem(STORAGE_KEYS.TIME_BUCKET) || selectedTimeBucket || 'unknown';
+    const birthTime = sessionStorage.getItem(STORAGE_KEYS.BIRTH_TIME) || sessionStorage.getItem(STORAGE_KEYS.TIME_BUCKET) || '12:00';
 
-    const payload = {
-      name: firstName,
-      dob: dob,
-      sunSign,
-      lifePath,
-      birthplace,
-      timeBucket,
-      palmImage: sanitizedPalmDataUrl,
-      isDemoPalm: isDemoPalm
-    };
+    let payload;
+    if (isTwo) {
+      const p2Name = sessionStorage.getItem(STORAGE_KEYS.P2_NAME) || 'Partner';
+      const p2Dob = sessionStorage.getItem(STORAGE_KEYS.P2_DOB) || '';
+      const p2SunSign = sessionStorage.getItem(STORAGE_KEYS.P2_SUN_SIGN) || 'Libra';
+      const p2LifePath = parseInt(sessionStorage.getItem(STORAGE_KEYS.P2_LIFE_PATH) || '6', 10);
+      const p2Birthplace = sessionStorage.getItem(STORAGE_KEYS.P2_BIRTHPLACE) || 'Not specified';
+      const p2BirthTime = sessionStorage.getItem(STORAGE_KEYS.P2_BIRTH_TIME) || sessionStorage.getItem(STORAGE_KEYS.P2_TIME_BUCKET) || '12:00';
+
+      payload = {
+        isTwoPerson: true,
+        cardFocus: selectedCardFocus ? selectedCardFocus.key : 'dating_mood_on',
+        person1: {
+          name: firstName,
+          dob: dob,
+          sunSign: sunSign,
+          lifePath: lifePath,
+          birthplace: birthplace,
+          birthTime: birthTime,
+          timeBucket: birthTime,
+          palmImage: sanitizedPalmDataUrlP1 || sanitizedPalmDataUrl,
+          isDemoPalm: false
+        },
+        person2: {
+          name: p2Name,
+          dob: p2Dob,
+          sunSign: p2SunSign,
+          lifePath: p2LifePath,
+          birthplace: p2Birthplace,
+          birthTime: p2BirthTime,
+          timeBucket: p2BirthTime,
+          palmImage: sanitizedPalmDataUrlP2,
+          isDemoPalm: false
+        }
+      };
+    } else {
+      payload = {
+        name: firstName,
+        dob: dob,
+        sunSign,
+        lifePath,
+        birthplace,
+        birthTime,
+        timeBucket: birthTime,
+        palmImage: sanitizedPalmDataUrl,
+        isDemoPalm: false,
+        cardFocus: selectedCardFocus ? selectedCardFocus.key : 'general'
+      };
+    }
 
     const requestStart = Date.now();
 
@@ -820,7 +1667,6 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error(response.error || 'Invalid reading response structure.');
         }
 
-        // Validate required sections on client
         const data = response.data;
         const hasSections = data.personalityReflection &&
           data.strengthsAndGrowth &&
@@ -834,7 +1680,6 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error('Reading response is missing one or more required reflection sections.');
         }
 
-        // Enforce full 4s scan + 3.2s mapped contemplation = 7.2s minimum duration
         const elapsed = Date.now() - requestStart;
         const remainingDelay = Math.max(0, 7200 - elapsed);
 
@@ -862,19 +1707,180 @@ document.addEventListener('DOMContentLoaded', () => {
   // 9. Results Dashboard Rendering
   // -------------------------------------------------------------
   function renderResults(data) {
+    const isTwo = isTwoPersonMode();
     const firstName = sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME) || 'Seeker';
-    if (rUserName) rUserName.textContent = firstName;
-
-    // Archetype Hero Card
-    if (data.archetype) {
-      if (rArchetypeTitle) rArchetypeTitle.textContent = data.archetype.title || 'The Inquisitive Wayfarer';
-      if (rArchetypeGift) rArchetypeGift.textContent = `Core Gift: ${data.archetype.coreGift || 'Reflective Wisdom'}`;
-      if (rTagZodiac) rTagZodiac.textContent = `${data.archetype.zodiacSign || 'Aries'} ♈`;
-      if (rTagLifepath) rTagLifepath.textContent = `Path ${data.archetype.lifePathNumber || 7} 🌟`;
-      if (rTagTime) rTagTime.textContent = data.archetype.solarAlignment || 'Morning';
+    const p2Name = sessionStorage.getItem(STORAGE_KEYS.P2_NAME) || 'Partner';
+    if (rUserName) {
+      rUserName.textContent = isTwo ? `${firstName} & ${p2Name}` : firstName;
     }
 
-    // Palm Highlights
+    // 1. Hero Atmosphere Header
+    const summary = data.summary || {};
+    const catKey = summary.categoryKey || (selectedCardFocus ? selectedCardFocus.key : 'karma_is_loading');
+
+    if (resultsCategoryIcon) {
+      resultsCategoryIcon.textContent = summary.categoryIcon || (selectedCardFocus ? selectedCardFocus.emoji : '🪷');
+    }
+    if (resultsCategoryName) {
+      resultsCategoryName.textContent = summary.categoryName || (selectedCardFocus ? selectedCardFocus.name : 'Karma Is Loading');
+    }
+    if (resultsSubtitlePill) {
+      resultsSubtitlePill.textContent = summary.subtitle || 'Your Life Lessons & Growth Report';
+    }
+
+    // Legacy Titles for compatibility
+    if (summaryCategoryTitle) {
+      summaryCategoryTitle.textContent = summary.title || (selectedCardFocus ? selectedCardFocus.name : 'Cosmic Vibe Summary');
+    }
+    if (summarySeekerSubtitle) {
+      summarySeekerSubtitle.textContent = isTwo
+        ? `Bond Synergy Reflections for ${firstName} & ${p2Name}`
+        : `Personal Reflections for ${firstName}`;
+    }
+
+    // Top Summary Card
+    const reportTitles = {
+      karma_is_loading: 'Your Karma Report',
+      future_millionaire: 'Your Career Report',
+      bond_check: 'Your Bond Report',
+      dating_mood_on: 'Your Compatibility Report'
+    };
+    if (summaryReportIcon) {
+      summaryReportIcon.textContent = summary.reportIcon || '⚖️';
+    }
+    if (summaryReportTitle) {
+      summaryReportTitle.textContent = reportTitles[catKey] || 'Your Report';
+    }
+    if (summaryScoreLabel) {
+      summaryScoreLabel.textContent = summary.scoreLabel || 'Overall Balance Score';
+    }
+    if (summaryVibeScore) {
+      summaryVibeScore.textContent = summary.score || 85;
+    }
+    if (summaryPersonaLabel) {
+      summaryPersonaLabel.textContent = summary.personaLabel || 'Your Karma Persona';
+    }
+    if (summaryVibeLabel) {
+      summaryVibeLabel.textContent = summary.label || (selectedCardFocus ? selectedCardFocus.subtitle : 'The Self-Growth Explorer 🌱');
+    }
+
+    // 5 Horizontal Progress Bars with Neon Purple Fills
+    if (summaryMetricsList) {
+      summaryMetricsList.innerHTML = '';
+      const metrics = Array.isArray(summary.metrics) ? summary.metrics : [];
+      metrics.forEach((m, idx) => {
+        const item = document.createElement('div');
+        item.className = 'summary-metric-row';
+        const fillId = `metric-fill-bar-${idx}`;
+        const labelText = escapeHtml(m.displayLabel || m.label || 'Synergy');
+        const iconText = escapeHtml(m.icon || '✨');
+        item.innerHTML = `
+          <div class="metric-info-col">
+            <span class="metric-emoji">${iconText}</span>
+            <span class="metric-name">${labelText}</span>
+          </div>
+          <div class="metric-bar-track">
+            <div class="metric-bar-fill" id="${fillId}" style="width: 0%;"></div>
+          </div>
+          <div class="metric-percent-col">${m.value}%</div>
+        `;
+        summaryMetricsList.appendChild(item);
+
+        // Animate progression smoothly
+        setTimeout(() => {
+          const fillEl = document.getElementById(fillId);
+          if (fillEl) {
+            fillEl.style.width = `${Math.min(100, Math.max(10, m.value))}%`;
+          }
+        }, 80 + idx * 60);
+      });
+    }
+
+    // 2. The 6 Core Content Cards
+    const sec = data.sections || {};
+    if (rPastText) {
+      rPastText.textContent = sec.past || 'Valuable past experiences have helped shape your instincts.';
+    }
+    if (rPresentText) {
+      rPresentText.textContent = sec.present || 'You are standing in a grounded space of clear awareness and positive energy.';
+    }
+    if (rFutureWittyText) {
+      rFutureWittyText.textContent = sec.future || 'Encouraging possibilities are taking shape right on schedule.';
+    }
+
+    if (rStrengthsIcon) {
+      rStrengthsIcon.textContent = summary.strengthsIcon || '💪';
+    }
+    if (rStrengthsTitle) {
+      rStrengthsTitle.textContent = summary.strengthsTitle || 'Your Strengths';
+    }
+    if (rWatchOutTitle) {
+      rWatchOutTitle.textContent = summary.watchOutTitle || 'Watch Out For';
+    }
+    if (rNextMoveTitle) {
+      rNextMoveTitle.textContent = summary.nextMoveTitle || 'Your Next Move';
+    }
+
+    if (rStrengthsList) {
+      rStrengthsList.innerHTML = '';
+      const strengths = Array.isArray(sec.strengths) ? sec.strengths : ['Resilient and adaptable', 'Learn from mistakes'];
+      strengths.forEach(st => {
+        const li = document.createElement('li');
+        li.className = 'tile-bullet-item';
+        li.innerHTML = `<span class="bullet-dot" aria-hidden="true">•</span><span class="bullet-text">${escapeHtml(st.replace(/^[•\-\*]\s*/, ''))}</span>`;
+        rStrengthsList.appendChild(li);
+      });
+    }
+
+    if (rWatchOutList) {
+      rWatchOutList.innerHTML = '';
+      const watchOuts = Array.isArray(sec.watchOutFor) ? sec.watchOutFor : ['Repeating old habits', 'Getting affected by negativity'];
+      watchOuts.forEach(wo => {
+        const li = document.createElement('li');
+        li.className = 'tile-bullet-item';
+        li.innerHTML = `<span class="bullet-dot" aria-hidden="true">•</span><span class="bullet-text">${escapeHtml(wo.replace(/^[•\-\*]\s*/, ''))}</span>`;
+        rWatchOutList.appendChild(li);
+      });
+    }
+
+    if (rNextMoveList) {
+      rNextMoveList.innerHTML = '';
+      const moves = Array.isArray(sec.nextMoveList) && sec.nextMoveList.length > 0
+        ? sec.nextMoveList
+        : (sec.nextMove ? sec.nextMove.split(/,\s*|\.\s*/).filter(Boolean) : ['Pick one main goal', 'Keep consistent']);
+      moves.forEach(mv => {
+        const li = document.createElement('li');
+        li.className = 'tile-bullet-item';
+        li.innerHTML = `<span class="bullet-dot" aria-hidden="true">•</span><span class="bullet-text">${escapeHtml(mv.replace(/^[•\-\*]\s*/, ''))}</span>`;
+        rNextMoveList.appendChild(li);
+      });
+    }
+
+    if (rNextMoveText) {
+      rNextMoveText.textContent = sec.nextMove || 'Take a clear, intentional step forward today.';
+    }
+
+    // 3. Final Verdict Banner
+    if (verdictBadgeImg) {
+      const badgeMap = {
+        karma_is_loading: 'verdict_lotus.jpg',
+        future_millionaire: 'verdict_trophy.jpg',
+        bond_check: 'verdict_hearts.jpg',
+        dating_mood_on: 'verdict_couple.jpg'
+      };
+      const badgeFile = summary.badgeImg || badgeMap[catKey] || 'verdict_lotus.jpg';
+      verdictBadgeImg.src = `/${badgeFile}`;
+    }
+
+    if (rVerdictHeadline) {
+      rVerdictHeadline.textContent = sec.verdictHeadline || summary.verdictHeadline || 'Your karma is in a "Reset & Grow" phase!';
+    }
+
+    if (rFinalVerdictText) {
+      rFinalVerdictText.textContent = sec.finalVerdict || 'The universe is clearing old baggage and preparing you for a better, brighter you.';
+    }
+
+    // 3. Palm Highlights
     if (rPalmLines) {
       rPalmLines.innerHTML = '';
       const lines = Array.isArray(data.palmHighlights) ? data.palmHighlights : [];
@@ -890,82 +1896,50 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 1. Personality Reflection
-    if (data.personalityReflection) {
-      if (rPersonalityTitle) rPersonalityTitle.textContent = data.personalityReflection.title || 'Personality Reflection';
-      if (rPersonalitySummary) rPersonalitySummary.textContent = data.personalityReflection.summary || '';
-
-      if (rPersonalityTraits) {
-        rPersonalityTraits.innerHTML = '';
-        const traits = Array.isArray(data.personalityReflection.traits) ? data.personalityReflection.traits : [];
-        traits.forEach(trait => {
-          const li = document.createElement('li');
-          li.textContent = trait;
-          rPersonalityTraits.appendChild(li);
-        });
-      }
+    // 4. Archetype Hero Card & Legacy Fields for Full Backward Compatibility
+    if (data.archetype) {
+      if (rArchetypeTitle) rArchetypeTitle.textContent = data.archetype.title || 'The Inquisitive Wayfarer';
+      if (rArchetypeGift) rArchetypeGift.textContent = `Core Gift: ${data.archetype.coreGift || 'Reflective Wisdom'}`;
+      if (rTagZodiac) rTagZodiac.textContent = `${data.archetype.zodiacSign || 'Aries'} ♈`;
+      if (rTagLifepath) rTagLifepath.textContent = `Path ${data.archetype.lifePathNumber || 7} 🌟`;
+      if (rTagTime) rTagTime.textContent = data.archetype.solarAlignment || 'Morning';
     }
 
-    // 2. Strengths & Areas for Growth
-    if (data.strengthsAndGrowth) {
-      if (rStrengthsText) rStrengthsText.textContent = data.strengthsAndGrowth.coreStrengths || '';
-      if (rGrowthAreasText) rGrowthAreasText.textContent = data.strengthsAndGrowth.areasForGrowth || '';
+    if (data.personalityReflection && rPersonalitySummary) {
+      rPersonalitySummary.textContent = data.personalityReflection.summary || '';
     }
-
-    // 3. Career & Learning Reflections
-    if (data.careerAndLearning) {
-      if (rCareerTitle) rCareerTitle.textContent = data.careerAndLearning.title || 'Career & Learning Reflections';
-      if (rCareerSummary) rCareerSummary.textContent = data.careerAndLearning.summary || '';
-      if (rCareerEnvironments) rCareerEnvironments.textContent = data.careerAndLearning.idealEnvironments || '';
-      if (rCareerLearning) rCareerLearning.textContent = data.careerAndLearning.learningStyle || '';
+    if (data.strengthsAndGrowth && rStrengthsText) {
+      rStrengthsText.textContent = data.strengthsAndGrowth.coreStrengths || '';
     }
-
-    // 4. Relationships & Communication Reflections
-    if (data.relationshipsAndCommunication) {
-      if (rRelationshipsTitle) rRelationshipsTitle.textContent = data.relationshipsAndCommunication.title || 'Relationships & Communication';
-      if (rRelationshipsSummary) rRelationshipsSummary.textContent = data.relationshipsAndCommunication.summary || '';
-      if (rRelationshipsCommunication) rRelationshipsCommunication.textContent = data.relationshipsAndCommunication.communicationStyle || '';
-      if (rRelationshipsTip) rRelationshipsTip.textContent = data.relationshipsAndCommunication.connectionTip || '';
-    }
-
-    // 5. General Future Possibilities
-    if (data.futurePossibilities) {
-      if (rFutureTitle) rFutureTitle.textContent = data.futurePossibilities.title || 'General Future Possibilities';
-      if (rFutureSummary) rFutureSummary.textContent = data.futurePossibilities.summary || '';
-
-      if (rFutureThemes) {
-        rFutureThemes.innerHTML = '';
-        const themes = Array.isArray(data.futurePossibilities.upcomingThemes) ? data.futurePossibilities.upcomingThemes : [];
-        themes.forEach(theme => {
-          const li = document.createElement('li');
-          li.textContent = theme;
-          rFutureThemes.appendChild(li);
-        });
-      }
-    }
-
-    // 6. Positive, Practical Suggestions
-    if (data.practicalSuggestions) {
-      if (rPracticalTitle) rPracticalTitle.textContent = data.practicalSuggestions.title || 'Positive, Practical Suggestions';
-
-      if (rPracticalPractices) {
-        rPracticalPractices.innerHTML = '';
-        const practices = Array.isArray(data.practicalSuggestions.dailyPractices) ? data.practicalSuggestions.dailyPractices : [];
-        practices.forEach(practice => {
-          const li = document.createElement('li');
-          li.textContent = practice;
-          rPracticalPractices.appendChild(li);
-        });
-      }
-
-      if (rPracticalPrompt) rPracticalPrompt.textContent = `"${data.practicalSuggestions.reflectionPrompt || 'What path brings you calm momentum?'}"`;
-      if (rPracticalAffirmation) rPracticalAffirmation.textContent = `"${data.practicalSuggestions.cosmicAffirmation || 'I walk forward with quiet confidence and clear purpose.'}"`;
+    if (data.relationshipsAndCommunication && rRelationshipsSummary) {
+      rRelationshipsSummary.textContent = data.relationshipsAndCommunication.summary || '';
     }
 
     // Provider / Mode Footer
     if (rModeInfo) {
       const mode = data?.meta?.mode === 'live' ? 'Live Gemini AI' : 'Cosmic Synthesis Engine';
       rModeInfo.textContent = `Engine: ${mode} · Strictly Private & In-Memory`;
+    }
+
+    // Highlight Chosen Card Focus in Results if selected
+    if (selectedCardFocus) {
+      if (resultsFocusBanner && resultsFocusText) {
+        resultsFocusText.textContent = `${selectedCardFocus.emoji} ${selectedCardFocus.name}`;
+        resultsFocusBanner.style.display = 'inline-flex';
+      }
+
+      const targetCardEl = document.getElementById(selectedCardFocus.targetCardId);
+      if (targetCardEl) {
+        document.querySelectorAll('.witty-card, .result-card').forEach(c => c.classList.remove('card-focus-highlighted'));
+        targetCardEl.classList.add('card-focus-highlighted');
+
+        setTimeout(() => {
+          targetCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 650);
+      }
+    } else {
+      if (resultsFocusBanner) resultsFocusBanner.style.display = 'none';
+      document.querySelectorAll('.witty-card, .result-card').forEach(c => c.classList.remove('card-focus-highlighted'));
     }
   }
 
@@ -976,24 +1950,134 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCopySummary.addEventListener('click', () => {
       if (!currentReadingData) return;
 
+      const isTwo = isTwoPersonMode();
       const firstName = sessionStorage.getItem(STORAGE_KEYS.FIRST_NAME) || 'Seeker';
-      const arch = currentReadingData.archetype || {};
-      const summaryText = `✨ AI Jyotish Reflection for ${firstName} ✨\n` +
-        `Archetype: ${arch.title || ''} (${arch.zodiacSign || ''} · Life Path ${arch.lifePathNumber || ''})\n` +
-        `Core Gift: ${arch.coreGift || ''}\n\n` +
-        `🌟 Personality: ${currentReadingData.personalityReflection?.summary || ''}\n\n` +
-        `⚡ Strengths: ${currentReadingData.strengthsAndGrowth?.coreStrengths || ''}\n` +
-        `🌱 Growth Focus: ${currentReadingData.strengthsAndGrowth?.areasForGrowth || ''}\n\n` +
-        `🧭 Career & Learning: ${currentReadingData.careerAndLearning?.summary || ''}\n\n` +
-        `🤍 Relationships & Communication: ${currentReadingData.relationshipsAndCommunication?.summary || ''}\n\n` +
-        `🔮 Future Possibilities: ${currentReadingData.futurePossibilities?.summary || ''}\n\n` +
-        `☀️ Affirmation: ${currentReadingData.practicalSuggestions?.cosmicAffirmation || ''}\n\n` +
-        `(For entertainment & self-reflection only · AI Jyotish)`;
+      const p2Name = sessionStorage.getItem(STORAGE_KEYS.P2_NAME) || 'Partner';
+      const summary = currentReadingData.summary || {};
+      const sec = currentReadingData.sections || {};
 
-      navigator.clipboard.writeText(summaryText)
-        .then(() => showToast('Summary copied to clipboard! ✨'))
+      const metricsText = Array.isArray(summary.metrics)
+        ? summary.metrics.map(m => `  • ${m.label}: ${m.value}%`).join('\n')
+        : '';
+
+      const strengthsText = Array.isArray(sec.strengths)
+        ? sec.strengths.map(s => `  ${s}`).join('\n')
+        : '';
+
+      const watchOutText = Array.isArray(sec.watchOutFor)
+        ? sec.watchOutFor.map(w => `  ${w}`).join('\n')
+        : '';
+
+      const fullReportText =
+`✨ ${summary.title || 'Cosmic Reflection Report'} ✨
+👤 ${isTwo ? `${firstName} & ${p2Name}` : firstName}
+⭐ Overall Vibe Score: ${summary.score || 88}/100
+🏷️ Vibe Label: ${summary.label || 'Cosmic Seeker'}
+
+📊 SYNERGY METRICS:
+${metricsText}
+
+⏳ THE PAST:
+${sec.past || ''}
+
+⚡ THE PRESENT:
+${sec.present || ''}
+
+🔮 THE FUTURE:
+${sec.future || ''}
+
+🌟 YOUR STRENGTHS:
+${strengthsText}
+
+⚠️ WATCH OUT FOR:
+${watchOutText}
+
+🎯 YOUR NEXT MOVE:
+${sec.nextMove || ''}
+
+🏆 A FUNNY FINAL VERDICT:
+${sec.finalVerdict || ''}
+
+(For entertainment & self-reflection only · AI Jyotish)`;
+
+      navigator.clipboard.writeText(fullReportText)
+        .then(() => showToast('Complete reflection copied to clipboard! ✨'))
         .catch(() => showToast('Unable to copy summary automatically.'));
     });
+  }
+
+  // -------------------------------------------------------------
+  // 11. Start New Reading & State Reset
+  // -------------------------------------------------------------
+  if (btnStartNew) {
+    btnStartNew.addEventListener('click', () => {
+      resetToStart();
+    });
+  }
+
+  function resetToStart() {
+    // 1. Reset all form inputs
+    if (inputFirstName) inputFirstName.value = '';
+    if (inputDob) inputDob.value = '';
+    if (inputBirthplace) inputBirthplace.value = '';
+    if (inputTime) inputTime.value = '';
+    if (inputP2Name) inputP2Name.value = '';
+    if (inputP2Dob) inputP2Dob.value = '';
+    if (inputP2Birthplace) inputP2Birthplace.value = '';
+    if (inputP2Time) inputP2Time.value = '';
+
+    // Clear validation hints
+    [hintFirstName, hintDob, hintBirthplace, hintTime, hintP2Name, hintP2Dob, hintP2Birthplace, hintP2Time].forEach(h => {
+      if (h) h.textContent = '';
+    });
+
+    // 2. Clear session storage
+    Object.values(STORAGE_KEYS).forEach(k => {
+      try { sessionStorage.removeItem(k); } catch {}
+    });
+
+    // 3. Reset internal memory state
+    sanitizedPalmDataUrl = null;
+    sanitizedPalmDataUrlP1 = null;
+    sanitizedPalmDataUrlP2 = null;
+    isDemoPalm = false;
+    isDemoPalmP1 = false;
+    isDemoPalmP2 = false;
+    currentReadingData = null;
+    selectedCardFocus = null;
+
+    // 4. Reset palm uploads & previews
+    if (palmPreviewImg) {
+      palmPreviewImg.src = '';
+      palmPreviewImg.style.display = 'none';
+    }
+    if (palmPreviewImgP1) {
+      palmPreviewImgP1.src = '';
+      palmPreviewImgP1.style.display = 'none';
+    }
+    if (palmPreviewImgP2) {
+      palmPreviewImgP2.src = '';
+      palmPreviewImgP2.style.display = 'none';
+    }
+
+    if (palmStatusText) palmStatusText.textContent = 'No photo selected';
+    if (palmStatusTextP1) palmStatusTextP1.textContent = 'No palm selected';
+    if (palmStatusTextP2) palmStatusTextP2.textContent = 'No palm selected';
+
+    if (palmStatusBadge) palmStatusBadge.querySelector('.status-dot')?.classList.remove('active');
+    if (palmStatusBadgeP1) palmStatusBadgeP1.querySelector('.status-dot')?.classList.remove('active');
+    if (palmStatusBadgeP2) palmStatusBadgeP2.querySelector('.status-dot')?.classList.remove('active');
+
+    if (pickPhotoText) pickPhotoText.textContent = 'Take or Upload Palm Photo';
+    if (pickPhotoTextP1) pickPhotoTextP1.textContent = 'Upload Palm 1';
+    if (pickPhotoTextP2) pickPhotoTextP2.textContent = 'Upload Palm 2';
+
+    if (btnAnalyzePalm) btnAnalyzePalm.style.display = 'none';
+
+    // 5. Navigate back to welcome screen cleanly
+    showScreen('welcome');
+    showToast('Ready for a new reading! ✨');
+    console.log('[event] reading_reset_completed');
   }
 
   // Toast Notification Helper
@@ -1016,4 +2100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   }
+
+  // Initialize and play Intro Video on site open
+  initIntroVideo();
 });

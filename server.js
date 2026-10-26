@@ -29,6 +29,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve frontend assets from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Explicit intro video routes (streaming & range requests)
+app.get(['/intro-video.mp4', '/VID_20261025_225353_193_bsl.mp4'], (req, res) => {
+  const isIntro = req.path.includes('intro-video.mp4');
+  const filename = isIntro ? 'intro-video.mp4' : 'VID_20261025_225353_193_bsl.mp4';
+  const videoPath = fs.existsSync(path.join(__dirname, 'public', filename))
+    ? path.join(__dirname, 'public', filename)
+    : path.join(__dirname, filename);
+  res.sendFile(videoPath);
+});
+
 // Health check endpoint (for monitoring and readiness checks)
 app.get('/api/health', (req, res) => {
   // Safe telemetry: Only return general service status (Rule 5)

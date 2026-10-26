@@ -12,8 +12,8 @@ Built strictly in accordance with [PROJECT_RULES.md](PROJECT_RULES.md).
 - **Mystical Aesthetic:** Dark navy & cosmic purple palette (`#09081C`), subtle warm gold accents (`#F3D17A`), elegant typography (Cinzel & Outfit), glassmorphism cards, and preserved ambient animations.
 - **5 Screen Journey:**
   1. **Welcome Screen:** Engaging introduction, clear "Start Reading" action, and prominent self-reflection disclaimers.
-  2. **Personal Details Form:** First name, Date of Birth (DD/MM/YYYY with leap-year and bounds validation), birthplace, and time-of-birth period chips.
-  3. **Palm Photo Upload Screen:** In-browser image guidelines, live preview, HTML5 Canvas sanitization (resizes to max 768px, strips EXIF data), and an instant **Demo Palm** path.
+  2. **Personal Details Form:** First name, Date of Birth (calendar and manual bounds validation), required Birthplace (city), and required accurate Time of Birth (HH:MM time picker). Supports dual-person mode for connection cards.
+  3. **Palm Photo Upload Screen:** In-browser image guidelines, live preview, and HTML5 Canvas sanitization (resizes to max 768px, strips EXIF data). Requires real uploaded palm photos for authentic hand analysis.
   4. **Loading Screen:** Mystical rotating gyro-loader with animated cycling progress messages.
   5. **Results Dashboard:** Personalized Archetype card, Palm Highlights (Heart, Head, Life lines), and 5 structured self-reflection sections:
      - *Personality Reflection*

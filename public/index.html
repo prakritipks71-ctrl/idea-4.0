@@ -90,9 +90,192 @@
     </header>
 
     <!-- ============================================================
+         SCREEN 0: INTRO VIDEO & CARDS THEATER
+         ============================================================ -->
+    <main id="screen-intro" class="screen screen-intro active" role="main">
+
+      <div class="intro-header">
+        <div class="intro-kicker">
+          <span class="pulse-star">✦</span> Panditji's Cosmic Cards
+        </div>
+        <h1 class="intro-title">
+          Explore Your <span class="gold-gradient-text">Destiny</span>
+        </h1>
+        <p class="intro-subtitle" id="intro-subtitle">
+          Watch Panditji unveil the magical cards or select your path below
+        </p>
+      </div>
+
+      <!-- Responsive Video Player Container (9:16 Aspect Ratio) -->
+      <div class="intro-video-container" id="intro-video-container">
+        <!-- Video Element -->
+        <video
+          id="intro-video"
+          class="intro-video"
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          src="intro-video.mp4"
+        ></video>
+
+        <!-- Top Floating Controls Bar -->
+        <div class="video-floating-bar" id="video-floating-bar">
+          <button id="btn-intro-replay" class="video-control-pill" type="button" aria-label="Replay intro video">
+            <span class="pill-icon" aria-hidden="true">↺</span>
+            <span class="pill-label">Replay</span>
+          </button>
+          <button id="btn-intro-sound" class="video-control-pill" type="button" aria-label="Toggle video sound">
+            <span id="sound-icon" class="pill-icon" aria-hidden="true">🔊</span>
+            <span id="sound-text" class="pill-label">Sound</span>
+          </button>
+          <button id="btn-intro-skip" class="video-control-pill pill-skip" type="button" aria-label="Skip to cards">
+            <span class="pill-label">Skip</span>
+            <span class="pill-icon" aria-hidden="true">⏭</span>
+          </button>
+        </div>
+
+        <!-- Autoplay Sound Permission Banner (Graceful Browser Handling) -->
+        <button id="intro-sound-prompt" class="sound-prompt-pill" type="button" aria-label="Tap for sound" style="display: none;">
+          <span class="sound-pulse-ring" aria-hidden="true"></span>
+          <span class="prompt-icon" aria-hidden="true">🔊</span>
+          <span class="prompt-label">Tap for Sound</span>
+        </button>
+
+        <!-- Cards Settlement Banner (Appears when cards are ready) -->
+        <div class="cards-ready-banner" id="cards-ready-banner" style="display: none;">
+          <span class="sparkle-anim" aria-hidden="true">✨</span>
+          <span>Tap a card to reveal your reading</span>
+        </div>
+
+        <!-- 4 Interactive Clickable Card Hotspots directly overlaying the video's cards -->
+        <div id="intro-cards-overlay" class="intro-cards-overlay" aria-label="Interactive video cards">
+
+          <!-- Card 1: Dating Mood On (Top Left) -->
+          <button
+            id="card-hotspot-dating"
+            class="card-hotspot hotspot-dating"
+            type="button"
+            data-card="dating_mood_on"
+            aria-label="Dating Mood On card - Click to explore"
+          >
+            <div class="hotspot-shimmer"></div>
+            <div class="hotspot-halo"></div>
+            <div class="hotspot-badge">
+              <span class="badge-emoji">💕</span>
+              <span class="badge-title">Dating Mood On</span>
+            </div>
+          </button>
+
+          <!-- Card 2: Future Millionaire (Top Right) -->
+          <button
+            id="card-hotspot-millionaire"
+            class="card-hotspot hotspot-millionaire"
+            type="button"
+            data-card="future_millionaire"
+            aria-label="Future Millionaire card - Click to explore"
+          >
+            <div class="hotspot-shimmer"></div>
+            <div class="hotspot-halo"></div>
+            <div class="hotspot-badge">
+              <span class="badge-emoji">💰</span>
+              <span class="badge-title">Future Millionaire</span>
+            </div>
+          </button>
+
+          <!-- Card 3: Karma is Loading (Bottom Left) -->
+          <button
+            id="card-hotspot-karma"
+            class="card-hotspot hotspot-karma"
+            type="button"
+            data-card="karma_is_loading"
+            aria-label="Karma is Loading card - Click to explore"
+          >
+            <div class="hotspot-shimmer"></div>
+            <div class="hotspot-halo"></div>
+            <div class="hotspot-badge">
+              <span class="badge-emoji">🔥</span>
+              <span class="badge-title">Karma is Loading</span>
+            </div>
+          </button>
+
+          <!-- Card 4: Bond Check (Bottom Right) -->
+          <button
+            id="card-hotspot-bond"
+            class="card-hotspot hotspot-bond"
+            type="button"
+            data-card="bond_check"
+            aria-label="Bond Check card - Click to explore"
+          >
+            <div class="hotspot-shimmer"></div>
+            <div class="hotspot-halo"></div>
+            <div class="hotspot-badge">
+              <span class="badge-emoji">⭐</span>
+              <span class="badge-title">Bond Check</span>
+            </div>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- High-Contrast Card Chips for Ergonomic Accessibility & Mobile Touch -->
+      <div class="intro-actions" id="intro-actions">
+        <p class="intro-hint-text">
+          <span class="sparkle-anim" aria-hidden="true">✨</span> Choose a card to begin your reflection:
+        </p>
+
+        <div class="intro-card-chips" id="intro-card-chips" role="group" aria-label="Selectable cosmic cards">
+          <button type="button" class="card-chip chip-dating" data-card="dating_mood_on">
+            <span class="chip-icon">💕</span>
+            <div class="chip-info">
+              <span class="chip-name">Dating Mood On</span>
+              <span class="chip-desc">Vibe & Attraction</span>
+            </div>
+          </button>
+
+          <button type="button" class="card-chip chip-millionaire" data-card="future_millionaire">
+            <span class="chip-icon">💰</span>
+            <div class="chip-info">
+              <span class="chip-name">Future Millionaire</span>
+              <span class="chip-desc">Career & Wealth</span>
+            </div>
+          </button>
+
+          <button type="button" class="card-chip chip-karma" data-card="karma_is_loading">
+            <span class="chip-icon">🔥</span>
+            <div class="chip-info">
+              <span class="chip-name">Karma is Loading</span>
+              <span class="chip-desc">Life Path & Fate</span>
+            </div>
+          </button>
+
+          <button type="button" class="card-chip chip-bond" data-card="bond_check">
+            <span class="chip-icon">⭐</span>
+            <div class="chip-info">
+              <span class="chip-name">Bond Check</span>
+              <span class="chip-desc">Cosmic Harmony</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Optional skip to standard welcome screen -->
+        <div class="intro-bottom-nav">
+          <button id="btn-explore-all" class="btn-ghost" type="button" aria-label="Continue to all insights">
+            <span>Continue Without Focus →</span>
+          </button>
+        </div>
+
+        <p class="disclaimer-label">
+          For entertainment & self-reflection only · Not a definitive prediction
+        </p>
+      </div>
+
+    </main>
+
+    <!-- ============================================================
          SCREEN 1: WELCOME SCREEN
          ============================================================ -->
-    <main id="screen-welcome" class="screen screen-welcome active" role="main">
+    <main id="screen-welcome" class="screen screen-welcome" role="main" style="display: none;">
 
       <!-- Mystical Visual Centerpiece with Working Animations -->
       <div class="mystic-orb-container" aria-hidden="true">
@@ -133,6 +316,11 @@
           <span class="btn-arrow" aria-hidden="true">→</span>
         </button>
 
+        <button id="btn-watch-intro" class="btn-secondary" type="button" aria-label="Watch Panditji's intro video">
+          <span class="btn-icon">🎬</span>
+          <span>Watch Intro Video</span>
+        </button>
+
         <p class="disclaimer-label" id="welcome-disclaimer">
           For entertainment & self-reflection only · Not a definitive prediction
         </p>
@@ -154,83 +342,172 @@
 
       <div class="details-intro">
         <h2 class="section-heading">Enter Your Details 🔮</h2>
+
+        <!-- Active Card Topic Focus Banner (displayed when card selected from intro) -->
+        <div id="active-focus-container" class="active-focus-container" style="display: none;">
+          <div class="active-focus-pill" id="active-focus-pill">
+            <span class="focus-emoji" id="focus-badge-emoji">💰</span>
+            <div class="focus-details">
+              <span class="focus-tag">Chosen Cosmic Focus</span>
+              <span class="focus-title" id="focus-badge-title">Future Millionaire · Career & Wealth</span>
+            </div>
+          </div>
+          <button type="button" id="btn-change-focus" class="btn-focus-change" aria-label="Change card focus">
+            <span>Change ↺</span>
+          </button>
+        </div>
       </div>
 
       <form id="details-form" class="details-form" novalidate>
 
-        <!-- Form Grid for Laptop 2-column & Mobile 1-column responsiveness -->
-        <div class="form-grid-responsive">
-          <!-- Field 1: First Name -->
-          <div class="form-group" id="group-first-name">
-            <label for="input-first-name" class="form-label">
-              First Name <span class="required-star">*</span>
-            </label>
-            <input
-              type="text"
-              id="input-first-name"
-              class="form-input"
-              placeholder="e.g. Maya, Alex, Julian..."
-              autocomplete="given-name"
-              maxlength="30"
-              required
-            >
-            <p class="hint-message" id="hint-first-name" role="alert" style="display: none;"></p>
+        <!-- Person 1 Details Section -->
+        <div id="section-person-1" class="person-details-block">
+          <div class="person-tag-pill" id="p1-tag-pill" style="display: none;">
+            <span class="person-tag-icon">👤</span> Person 1 (You)
           </div>
 
-          <!-- Field 2: Date of Birth with Calendar picker -->
-          <div class="form-group" id="group-dob">
-            <label for="input-dob" class="form-label">
-              Date of Birth <span class="required-star">*</span>
-            </label>
-            <input
-              type="date"
-              id="input-dob"
-              class="form-input custom-date-picker"
-              min="1920-01-01"
-              max="2026-10-26"
-              required
-            >
-            <p class="hint-message" id="hint-dob" role="alert" style="display: none;"></p>
+          <!-- Form Grid for Laptop 2-column & Mobile 1-column responsiveness -->
+          <div class="form-grid-responsive">
+            <!-- Field 1: First Name -->
+            <div class="form-group" id="group-first-name">
+              <label for="input-first-name" class="form-label" id="label-first-name">
+                First Name <span class="required-star">*</span>
+              </label>
+              <input
+                type="text"
+                id="input-first-name"
+                class="form-input"
+                placeholder="e.g. Maya, Alex, Julian..."
+                autocomplete="given-name"
+                maxlength="30"
+                required
+              >
+              <p class="hint-message" id="hint-first-name" role="alert" style="display: none;"></p>
+            </div>
+
+            <!-- Field 2: Date of Birth with Calendar picker -->
+            <div class="form-group" id="group-dob">
+              <label for="input-dob" class="form-label" id="label-dob">
+                Date of Birth <span class="required-star">*</span>
+              </label>
+              <input
+                type="date"
+                id="input-dob"
+                class="form-input custom-date-picker"
+                min="1920-01-01"
+                max="2026-10-26"
+                required
+              >
+              <p class="hint-message" id="hint-dob" role="alert" style="display: none;"></p>
+            </div>
+          </div>
+
+          <div class="form-grid-responsive">
+            <!-- Field 3: Birthplace (City) - REQUIRED -->
+            <div class="form-group" id="group-birthplace">
+              <label for="input-birthplace" class="form-label" id="label-birthplace">
+                Birthplace (City) <span class="required-star">*</span>
+              </label>
+              <input
+                type="text"
+                id="input-birthplace"
+                class="form-input"
+                placeholder="e.g. London, New York, Delhi, Tokyo..."
+                maxlength="40"
+                required
+                aria-required="true"
+              >
+              <p class="hint-message" id="hint-birthplace" role="alert" style="display: none;"></p>
+            </div>
+
+            <!-- Field 4: Time of Birth - REQUIRED Accurate Time -->
+            <div class="form-group" id="group-time">
+              <label for="input-time" class="form-label" id="label-time">
+                Time of Birth <span class="required-star">*</span>
+              </label>
+              <input
+                type="time"
+                id="input-time"
+                class="form-input custom-time-picker"
+                name="birthTime"
+                required
+                aria-required="true"
+              >
+              <p class="hint-message" id="hint-time" role="alert" style="display: none;"></p>
+            </div>
           </div>
         </div>
 
-        <div class="form-grid-responsive">
-          <!-- Field 3: Birthplace (City) - OPTIONAL -->
-          <div class="form-group" id="group-birthplace">
-            <label for="input-birthplace" class="form-label">
-              Birthplace (City) <span class="optional-tag">(Optional)</span>
-            </label>
-            <input
-              type="text"
-              id="input-birthplace"
-              class="form-input"
-              placeholder="e.g. London, New York, Delhi, Tokyo..."
-              maxlength="40"
-            >
-            <p class="hint-message" id="hint-birthplace" role="alert" style="display: none;"></p>
+        <!-- Person 2 Details Section (Active in Dating Mood On & Bond Check modes) -->
+        <div id="section-person-2" class="person-details-block section-person-2" style="display: none;">
+          <div class="person-tag-pill tag-p2" id="p2-tag-pill">
+            <span class="person-tag-icon">💖</span> Person 2 (Partner / Connection)
           </div>
 
-          <!-- Field 4: Time of Birth Chip Group (One-word labels) -->
-          <div class="form-group" id="group-time-bucket">
-            <label class="form-label">
-              Time of Birth <span class="optional-tag">(Optional)</span>
-            </label>
-            <div class="chips-group" role="radiogroup" aria-label="Select birth time period">
-              <button type="button" class="chip-btn" data-time="morning" role="radio" aria-checked="false">
-                🌅 Morning
-              </button>
-              <button type="button" class="chip-btn" data-time="afternoon" role="radio" aria-checked="false">
-                ☀️ Afternoon
-              </button>
-              <button type="button" class="chip-btn" data-time="evening" role="radio" aria-checked="false">
-                🌇 Evening
-              </button>
-              <button type="button" class="chip-btn" data-time="night" role="radio" aria-checked="false">
-                🌙 Night
-              </button>
-              <button type="button" class="chip-btn active" data-time="unknown" role="radio" aria-checked="true">
-                ❓ Unknown
-              </button>
+          <div class="form-grid-responsive">
+            <!-- Person 2 First Name -->
+            <div class="form-group" id="group-p2-name">
+              <label for="input-p2-name" class="form-label">
+                Person 2 Name <span class="required-star">*</span>
+              </label>
+              <input
+                type="text"
+                id="input-p2-name"
+                class="form-input"
+                placeholder="e.g. Jordan, Sam, Priya..."
+                maxlength="30"
+              >
+              <p class="hint-message" id="hint-p2-name" role="alert" style="display: none;"></p>
+            </div>
+
+            <!-- Person 2 Date of Birth -->
+            <div class="form-group" id="group-p2-dob">
+              <label for="input-p2-dob" class="form-label">
+                Person 2 Date of Birth <span class="required-star">*</span>
+              </label>
+              <input
+                type="date"
+                id="input-p2-dob"
+                class="form-input custom-date-picker"
+                min="1920-01-01"
+                max="2026-10-26"
+              >
+              <p class="hint-message" id="hint-p2-dob" role="alert" style="display: none;"></p>
+            </div>
+          </div>
+
+          <div class="form-grid-responsive">
+            <!-- Person 2 Birthplace - REQUIRED -->
+            <div class="form-group" id="group-p2-birthplace">
+              <label for="input-p2-birthplace" class="form-label">
+                Person 2 Birthplace <span class="required-star">*</span>
+              </label>
+              <input
+                type="text"
+                id="input-p2-birthplace"
+                class="form-input"
+                placeholder="e.g. London, New York, Delhi, Tokyo..."
+                maxlength="40"
+                required
+                aria-required="true"
+              >
+              <p class="hint-message" id="hint-p2-birthplace" role="alert" style="display: none;"></p>
+            </div>
+
+            <!-- Person 2 Time of Birth - REQUIRED Accurate Time -->
+            <div class="form-group" id="group-p2-time">
+              <label for="input-p2-time" class="form-label" id="label-p2-time">
+                Person 2 Time of Birth <span class="required-star">*</span>
+              </label>
+              <input
+                type="time"
+                id="input-p2-time"
+                class="form-input custom-time-picker"
+                name="p2BirthTime"
+                required
+                aria-required="true"
+              >
+              <p class="hint-message" id="hint-p2-time" role="alert" style="display: none;"></p>
             </div>
           </div>
         </div>
@@ -238,7 +515,7 @@
         <!-- Actions: Submit to Palm Step -->
         <div class="form-actions">
           <button id="btn-next-to-palm" class="btn-primary" type="submit" aria-label="Continue to palm step">
-            <span class="btn-text">Continue to Palm Reading</span>
+            <span class="btn-text" id="btn-next-to-palm-text">Continue to Palm Reading</span>
             <span class="btn-arrow" aria-hidden="true">→</span>
           </button>
 
@@ -260,57 +537,124 @@
         <button id="btn-back-to-details" class="btn-back" type="button" aria-label="Back to details">
           <span aria-hidden="true">←</span> Back
         </button>
-        <span class="step-indicator">Step 2 of 4 · Hast Rekha</span>
+        <span class="step-indicator" id="palm-step-indicator">Step 2 of 4 · Hast Rekha</span>
       </div>
 
       <div class="palm-intro">
-        <h2 class="section-heading">Show Your Palm ✋</h2>
-        <p class="section-subheading">
-          Upload your palm photo or explore with a synthesized demo palm.
+        <h2 class="section-heading" id="palm-heading">Show Your Palm ✋</h2>
+        <p class="section-subheading" id="palm-subheading">
+          Upload your clear palm photo for celestial hand analysis.
         </p>
       </div>
 
-      <!-- Elongated Palm Interactive Preview & Upload Box (instructions removed) -->
-      <div class="palm-preview-container elongated" id="palm-preview-container">
-        <!-- SVG Hand Silhouette Guideline -->
-        <div class="palm-silhouette" id="palm-silhouette" aria-hidden="true">
-          <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100 220 C85 220 70 210 65 190 C60 170 55 140 50 110 C45 80 40 50 48 45 C56 40 65 65 70 95 C72 60 75 30 85 25 C95 20 100 50 100 85 C103 50 108 20 118 20 C128 20 128 55 125 90 C130 65 138 45 148 48 C158 51 152 85 145 115 C140 145 145 170 140 190 C135 210 115 220 100 220 Z" stroke="rgba(243, 209, 122, 0.45)" stroke-width="2" stroke-dasharray="4 4" />
-            <!-- Major palm lines subtle guide -->
-            <path d="M70 125 C85 120 115 128 135 120" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" />
-            <path d="M70 140 C90 140 110 150 130 160" stroke="rgba(255, 230, 0, 0.5)" stroke-width="1.5" />
-            <path d="M80 135 C85 160 95 185 110 200" stroke="rgba(0, 255, 136, 0.5)" stroke-width="1.5" />
-          </svg>
+      <!-- SINGLE PERSON PALM CONTAINER (Default) -->
+      <div id="palm-single-container" class="palm-single-container">
+        <!-- Elongated Palm Interactive Preview & Upload Box -->
+        <div class="palm-preview-container elongated" id="palm-preview-container">
+          <!-- SVG Hand Silhouette Guideline -->
+          <div class="palm-silhouette" id="palm-silhouette" aria-hidden="true">
+            <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M100 220 C85 220 70 210 65 190 C60 170 55 140 50 110 C45 80 40 50 48 45 C56 40 65 65 70 95 C72 60 75 30 85 25 C95 20 100 50 100 85 C103 50 108 20 118 20 C128 20 128 55 125 90 C130 65 138 45 148 48 C158 51 152 85 145 115 C140 145 145 170 140 190 C135 210 115 220 100 220 Z" stroke="rgba(243, 209, 122, 0.45)" stroke-width="2" stroke-dasharray="4 4" />
+              <path d="M70 125 C85 120 115 128 135 120" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" />
+              <path d="M70 140 C90 140 110 150 130 160" stroke="rgba(255, 230, 0, 0.5)" stroke-width="1.5" />
+              <path d="M80 135 C85 160 95 185 110 200" stroke="rgba(0, 255, 136, 0.5)" stroke-width="1.5" />
+            </svg>
+          </div>
+
+          <!-- Rendered Image Preview -->
+          <img id="palm-preview-img" class="palm-preview-img" alt="Uploaded palm preview" style="display: none;">
+
+          <!-- Active Mode Badge -->
+          <div class="palm-status-badge" id="palm-status-badge">
+            <span class="status-dot"></span>
+            <span id="palm-status-text">No palm selected yet</span>
+          </div>
         </div>
 
-        <!-- Rendered Image Preview -->
-        <img id="palm-preview-img" class="palm-preview-img" alt="Uploaded palm preview" style="display: none;">
+        <!-- Upload Actions Single -->
+        <div class="palm-actions">
+          <input type="file" id="palm-input" accept="image/*" capture="environment" style="display: none;">
 
-        <!-- Active Mode Badge -->
-        <div class="palm-status-badge" id="palm-status-badge">
-          <span class="status-dot"></span>
-          <span id="palm-status-text">No palm selected yet</span>
+          <button id="btn-pick-photo" class="btn-secondary" type="button" aria-label="Take or upload palm photo">
+            <span class="btn-icon">📷</span>
+            <span id="pick-photo-text">Take or Upload Palm Photo</span>
+          </button>
         </div>
       </div>
 
-      <!-- Upload Actions -->
-      <div class="palm-actions">
-        <!-- Hidden real file input -->
-        <input type="file" id="palm-input" accept="image/*" capture="environment" style="display: none;">
+      <!-- DUAL PERSON PALM CONTAINER (Dating Mood On & Bond Check Modes) -->
+      <div id="palm-dual-container" class="palm-dual-container" style="display: none;">
+        <div class="dual-palms-grid">
+          
+          <!-- Person 1 Palm Card -->
+          <div class="dual-palm-card" id="dual-palm-card-p1">
+            <div class="dual-palm-header">
+              <span class="person-tag-pill" id="dual-p1-tag"><span class="person-tag-icon">👤</span> <strong id="dual-p1-label">Person 1's Palm</strong></span>
+            </div>
 
-        <button id="btn-pick-photo" class="btn-secondary" type="button" aria-label="Take or upload palm photo">
-          <span class="btn-icon">📷</span>
-          <span id="pick-photo-text">Take or Upload Palm Photo</span>
-        </button>
+            <div class="palm-preview-container dual-box" id="palm-preview-container-p1">
+              <div class="palm-silhouette" id="palm-silhouette-p1" aria-hidden="true">
+                <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100 220 C85 220 70 210 65 190 C60 170 55 140 50 110 C45 80 40 50 48 45 C56 40 65 65 70 95 C72 60 75 30 85 25 C95 20 100 50 100 85 C103 50 108 20 118 20 C128 20 128 55 125 90 C130 65 138 45 148 48 C158 51 152 85 145 115 C140 145 145 170 140 190 C135 210 115 220 100 220 Z" stroke="rgba(243, 209, 122, 0.45)" stroke-width="2" stroke-dasharray="4 4" />
+                  <path d="M70 125 C85 120 115 128 135 120" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" />
+                  <path d="M70 140 C90 140 110 150 130 160" stroke="rgba(255, 230, 0, 0.5)" stroke-width="1.5" />
+                  <path d="M80 135 C85 160 95 185 110 200" stroke="rgba(0, 255, 136, 0.5)" stroke-width="1.5" />
+                </svg>
+              </div>
+              <img id="palm-preview-img-p1" class="palm-preview-img" alt="Person 1 palm preview" style="display: none;">
+              <div class="palm-status-badge" id="palm-status-badge-p1">
+                <span class="status-dot"></span>
+                <span id="palm-status-text-p1">No palm selected</span>
+              </div>
+            </div>
 
-        <button id="btn-demo-palm" class="btn-ghost" type="button" aria-label="Use synthetic demo palm">
-          <span class="btn-icon">✨</span>
-          <span>Continue with Demo Palm (Instant)</span>
-        </button>
+            <div class="dual-palm-card-actions">
+              <input type="file" id="palm-input-p1" accept="image/*" capture="environment" style="display: none;">
+              <button id="btn-pick-photo-p1" class="btn-secondary btn-sm" type="button" aria-label="Upload Person 1 Palm">
+                <span class="btn-icon">📷</span>
+                <span id="pick-photo-text-p1">Upload Palm 1</span>
+              </button>
+            </div>
+          </div>
 
-        <!-- Analyze Palm Button (Activated when photo or demo selected) -->
+          <!-- Person 2 Palm Card -->
+          <div class="dual-palm-card" id="dual-palm-card-p2">
+            <div class="dual-palm-header">
+              <span class="person-tag-pill tag-p2" id="dual-p2-tag"><span class="person-tag-icon">💖</span> <strong id="dual-p2-label">Person 2's Palm</strong></span>
+            </div>
+
+            <div class="palm-preview-container dual-box" id="palm-preview-container-p2">
+              <div class="palm-silhouette" id="palm-silhouette-p2" aria-hidden="true">
+                <svg viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100 220 C85 220 70 210 65 190 C60 170 55 140 50 110 C45 80 40 50 48 45 C56 40 65 65 70 95 C72 60 75 30 85 25 C95 20 100 50 100 85 C103 50 108 20 118 20 C128 20 128 55 125 90 C130 65 138 45 148 48 C158 51 152 85 145 115 C140 145 145 170 140 190 C135 210 115 220 100 220 Z" stroke="rgba(243, 209, 122, 0.45)" stroke-width="2" stroke-dasharray="4 4" />
+                  <path d="M70 125 C85 120 115 128 135 120" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" />
+                  <path d="M70 140 C90 140 110 150 130 160" stroke="rgba(255, 230, 0, 0.5)" stroke-width="1.5" />
+                  <path d="M80 135 C85 160 95 185 110 200" stroke="rgba(0, 255, 136, 0.5)" stroke-width="1.5" />
+                </svg>
+              </div>
+              <img id="palm-preview-img-p2" class="palm-preview-img" alt="Person 2 palm preview" style="display: none;">
+              <div class="palm-status-badge" id="palm-status-badge-p2">
+                <span class="status-dot"></span>
+                <span id="palm-status-text-p2">No palm selected</span>
+              </div>
+            </div>
+
+            <div class="dual-palm-card-actions">
+              <input type="file" id="palm-input-p2" accept="image/*" capture="environment" style="display: none;">
+              <button id="btn-pick-photo-p2" class="btn-secondary btn-sm" type="button" aria-label="Upload Person 2 Palm">
+                <span class="btn-icon">📷</span>
+                <span id="pick-photo-text-p2">Upload Palm 2</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Main Action: Analyze Palm Button (Activated when photo or demo selected) -->
+      <div class="palm-analyze-action">
         <button id="btn-analyze-palm" class="btn-primary" type="button" style="display: none;" aria-label="Analyze palm and stars">
-          <span class="btn-text">Analyze Palm & Stars</span>
+          <span class="btn-text" id="btn-analyze-palm-text">Analyze Palm & Stars</span>
           <span class="btn-arrow" aria-hidden="true">✨</span>
         </button>
 
@@ -466,194 +810,189 @@
     </main>
 
     <!-- ============================================================
-         SCREEN 5: RESULTS DASHBOARD
+         SCREEN 5: RESULTS DASHBOARD (Exact match to reference screenshots)
          ============================================================ -->
     <main id="screen-results" class="screen screen-results" role="main" style="display: none;">
 
-      <!-- Results Header -->
-      <div class="results-header">
-        <div class="results-kicker-row">
-          <span class="results-kicker">Cosmic Reflection Report</span>
-          <span class="badge-entertainment">For Fun & Reflection</span>
+
+      <!-- 2. Hero Atmosphere Header -->
+      <section class="results-hero-header">
+        <div class="hero-mascot-wrapper">
+          <div class="mascot-zodiac-ring" aria-hidden="true"></div>
+          <img src="/guru_mascot.jpg" alt="AI Jyotish Guru" class="hero-mascot-img" id="results-mascot-img" />
         </div>
 
-        <h2 class="results-title">
-          Greetings, <span class="gold-gradient-text" id="r-user-name">Seeker</span>
-        </h2>
+        <div class="hero-title-group">
+          <h1 class="hero-main-title">
+            <span id="results-category-icon" class="category-hero-icon">🪷</span>
+            <span id="results-category-name" class="category-hero-text">Karma Is Loading</span>
+          </h1>
+          <div class="hero-subtitle-pill" id="results-subtitle-pill">
+            Your Life Lessons & Growth Report
+          </div>
+        </div>
 
-        <!-- Archetype Card -->
-        <div class="archetype-hero-card">
-          <div class="archetype-badge-pill" id="r-archetype-pill">Astrological Archetype</div>
-          <h3 class="archetype-title" id="r-archetype-title">The Inquisitive Wayfarer</h3>
-          <p class="archetype-gift" id="r-archetype-gift">Core Gift: Reflective Clarity & Wisdom</p>
+        <div class="hero-sky-backdrop" aria-hidden="true">
+          <div class="sky-moon"></div>
+          <div class="sky-pagoda"></div>
+        </div>
+      </section>
 
-          <div class="archetype-meta-grid" id="r-meta-grid">
-            <div class="meta-tag">
-              <span class="meta-tag-label">Zodiac Sign</span>
-              <span class="meta-tag-value" id="r-tag-zodiac">Pisces ♓</span>
+      <!-- 3. Top Report Summary Card -->
+      <section class="summary-hero-card" id="results-summary-card">
+        <div class="summary-card-header">
+          <span id="summary-report-icon" class="summary-report-icon">⚖️</span>
+          <h3 class="summary-report-title" id="summary-report-title">Your Karma Report</h3>
+        </div>
+
+        <div class="summary-card-content">
+          <!-- Left: Score & Persona -->
+          <div class="summary-score-side">
+            <div class="summary-score-block">
+              <span class="summary-score-label" id="summary-score-label">Overall Balance Score</span>
+              <div class="summary-score-row">
+                <span class="summary-score-num" id="summary-vibe-score">85</span>
+                <span class="summary-score-denom">/100</span>
+              </div>
+              <!-- Golden underline arc curve -->
+              <svg class="score-arc-svg" width="112" height="14" viewBox="0 0 112 14" fill="none" aria-hidden="true">
+                <path d="M 6 6 Q 56 14 106 4" stroke="#F6D365" stroke-width="3" stroke-linecap="round"/>
+              </svg>
             </div>
-            <div class="meta-tag">
-              <span class="meta-tag-label">Life-Path</span>
-              <span class="meta-tag-value" id="r-tag-lifepath">Path 7 🌟</span>
+
+            <div class="summary-persona-block">
+              <span class="summary-persona-label" id="summary-persona-label">Your Karma Persona</span>
+              <div class="summary-persona-pill" id="summary-vibe-label-container">
+                <span class="summary-persona-text" id="summary-vibe-label">The Self-Growth Explorer 🌱</span>
+              </div>
             </div>
-            <div class="meta-tag">
-              <span class="meta-tag-label">Solar Time</span>
-              <span class="meta-tag-value" id="r-tag-time">Morning 🌅</span>
+          </div>
+
+          <!-- Right: 5 Metrics with Horizontal Progress Bars -->
+          <div class="summary-metrics-side">
+            <div class="summary-metrics-list" id="summary-metrics-list">
+              <!-- Populated dynamically: Icon + Label, neon-purple track & fill, % value -->
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Results Navigation / Sections Container -->
-      <div class="results-sections">
+      <!-- 4. The 6 Core Content Cards (2 rows x 3 columns on desktop, stacked on mobile) -->
+      <div class="results-cards-grid" id="results-witty-cards">
 
-        <!-- 1. Palm Line Highlights -->
-        <section class="result-card palm-lines-card" id="card-palm-highlights">
-          <div class="card-header">
-            <span class="card-icon">✋</span>
-            <h4 class="card-title">Hast Rekha · Palm Highlights</h4>
+        <!-- 1. The Past -->
+        <section class="result-tile tile-past" id="card-witty-past">
+          <div class="tile-header">
+            <span class="tile-icon">⏳</span>
+            <h4 class="tile-title" id="r-past-title">The Past</h4>
           </div>
-          <p class="card-intro">Key contours observed during your palm analysis:</p>
-          <div class="palm-lines-list" id="r-palm-lines">
-            <!-- Dynamically populated -->
-          </div>
+          <p class="tile-body" id="r-past-text">You may have faced a few challenges that taught you patience, self-control, and what truly matters.</p>
+          <div class="tile-silhouette tile-silhouette-mountain" aria-hidden="true"></div>
         </section>
 
-        <!-- 2. Personality Reflection -->
-        <section class="result-card" id="card-personality">
-          <div class="card-header">
-            <span class="card-icon">🌟</span>
-            <h4 class="card-title" id="r-personality-title">Personality Reflection</h4>
+        <!-- 2. The Present -->
+        <section class="result-tile tile-present" id="card-witty-present">
+          <div class="tile-header">
+            <span class="tile-icon">☀️</span>
+            <h4 class="tile-title" id="r-present-title">The Present</h4>
           </div>
-          <p class="card-body-text" id="r-personality-summary"></p>
-          <div class="traits-container">
-            <div class="traits-label">Observed Resonance:</div>
-            <ul class="traits-list" id="r-personality-traits"></ul>
-          </div>
+          <p class="tile-body" id="r-present-text">You're becoming more aware of your choices, habits, and emotions. You're trying to be a better version of yourself.</p>
         </section>
 
-        <!-- 3. Strengths and Areas for Growth -->
-        <section class="result-card" id="card-strengths-growth">
-          <div class="card-header">
-            <span class="card-icon">⚡</span>
-            <h4 class="card-title" id="r-strengths-growth-title">Strengths & Areas for Growth</h4>
+        <!-- 3. The Future -->
+        <section class="result-tile tile-future" id="card-witty-future">
+          <div class="tile-header">
+            <span class="tile-icon">🔮</span>
+            <h4 class="tile-title" id="r-future-title">The Future</h4>
           </div>
-          <div class="highlight-callout">
-            <span class="callout-icon">✨</span>
-            <div class="callout-content">
-              <strong>Core Strengths:</strong>
-              <span id="r-strengths-text"></span>
-            </div>
-          </div>
-          <div class="highlight-callout">
-            <span class="callout-icon">🌱</span>
-            <div class="callout-content">
-              <strong>Areas for Nurturing & Growth:</strong>
-              <span id="r-growth-areas-text"></span>
-            </div>
-          </div>
+          <p class="tile-body" id="r-future-text">A more balanced, peaceful, and happier phase is likely ahead. You'll feel more confident and closer to your goals.</p>
+          <div class="tile-silhouette tile-silhouette-mountain" aria-hidden="true"></div>
         </section>
 
-        <!-- 4. Career and Learning Reflections -->
-        <section class="result-card" id="card-career">
-          <div class="card-header">
-            <span class="card-icon">🧭</span>
-            <h4 class="card-title" id="r-career-title">Career & Learning Reflections</h4>
+        <!-- 4. Your Strengths -->
+        <section class="result-tile tile-strengths" id="card-witty-strengths">
+          <div class="tile-header">
+            <span class="tile-icon" id="r-strengths-icon">💪</span>
+            <h4 class="tile-title" id="r-strengths-title">Your Strengths</h4>
           </div>
-          <p class="card-body-text" id="r-career-summary"></p>
-          <div class="highlight-callout">
-            <span class="callout-icon">🎯</span>
-            <div class="callout-content">
-              <strong>Ideal Environments:</strong>
-              <span id="r-career-environments"></span>
-            </div>
-          </div>
-          <div class="highlight-callout">
-            <span class="callout-icon">💡</span>
-            <div class="callout-content">
-              <strong>Learning Style:</strong>
-              <span id="r-career-learning"></span>
-            </div>
-          </div>
+          <ul class="tile-bullet-list" id="r-strengths-list"></ul>
         </section>
 
-        <!-- 5. Relationships and Communication Reflections -->
-        <section class="result-card" id="card-relationships">
-          <div class="card-header">
-            <span class="card-icon">🤍</span>
-            <h4 class="card-title" id="r-relationships-title">Relationships & Communication</h4>
+        <!-- 5. Watch Out For -->
+        <section class="result-tile tile-watch-out" id="card-witty-watch-out">
+          <div class="tile-header">
+            <span class="tile-icon" id="r-watch-out-icon">⚠️</span>
+            <h4 class="tile-title" id="r-watch-out-title">Watch Out For</h4>
           </div>
-          <p class="card-body-text" id="r-relationships-summary"></p>
-          <div class="highlight-callout">
-            <span class="callout-icon">💬</span>
-            <div class="callout-content">
-              <strong>Communication Style:</strong>
-              <span id="r-relationships-communication"></span>
-            </div>
-          </div>
-          <div class="highlight-callout">
-            <span class="callout-icon">🌿</span>
-            <div class="callout-content">
-              <strong>Connection Tip:</strong>
-              <span id="r-relationships-tip"></span>
-            </div>
-          </div>
+          <ul class="tile-bullet-list" id="r-watch-out-list"></ul>
         </section>
 
-        <!-- 6. General Future Possibilities -->
-        <section class="result-card" id="card-future">
-          <div class="card-header">
-            <span class="card-icon">🔮</span>
-            <h4 class="card-title" id="r-future-title">General Future Possibilities</h4>
+        <!-- 6. Your Next Move -->
+        <section class="result-tile tile-next-move" id="card-witty-next-move">
+          <div class="tile-header">
+            <span class="tile-icon" id="r-next-move-icon">🎯</span>
+            <h4 class="tile-title" id="r-next-move-title">Your Next Move</h4>
           </div>
-          <p class="card-body-text" id="r-future-summary"></p>
-          <div class="traits-container">
-            <div class="traits-label">Upcoming Themes to Explore:</div>
-            <ul class="traits-list" id="r-future-themes"></ul>
-          </div>
-        </section>
-
-        <!-- 7. Positive, Practical Suggestions -->
-        <section class="result-card affirmation-card" id="card-practical-suggestions">
-          <div class="card-header">
-            <span class="card-icon">☀️</span>
-            <h4 class="card-title" id="r-practical-title">Positive, Practical Suggestions</h4>
-          </div>
-          <div class="traits-container">
-            <div class="traits-label">Suggested Daily Grounding:</div>
-            <ul class="traits-list" id="r-practical-practices"></ul>
-          </div>
-          <div class="prompt-box">
-            <span class="prompt-label">Self-Reflection Question:</span>
-            <p class="prompt-quote" id="r-practical-prompt"></p>
-          </div>
-          <div class="cosmic-affirmation-box">
-            <span class="affirmation-label">Daily Affirmation</span>
-            <blockquote class="affirmation-text" id="r-practical-affirmation"></blockquote>
-          </div>
+          <ul class="tile-bullet-list" id="r-next-move-list"></ul>
+          <p class="tile-body tile-body-secondary" id="r-next-move-text" style="display: none;"></p>
         </section>
 
       </div>
 
-      <!-- Action Buttons -->
-      <div class="results-actions">
-        <button id="btn-copy-summary" class="btn-secondary" type="button" aria-label="Copy summary to clipboard">
-          <span class="btn-icon">📋</span>
+      <!-- 5. Full-Width Final Verdict Card -->
+      <section class="results-verdict-banner" id="card-witty-verdict">
+        <div class="verdict-badge-side">
+          <img src="/verdict_lotus.jpg" alt="Final Verdict Badge" class="verdict-badge-img" id="verdict-badge-img" />
+        </div>
+        <div class="verdict-divider-line" aria-hidden="true"></div>
+        <div class="verdict-content-side">
+          <div class="verdict-kicker-tag">Final Verdict</div>
+          <h3 class="verdict-headline" id="r-verdict-headline">Your karma is in a "Reset & Grow" phase!</h3>
+          <p class="verdict-subtext" id="r-final-verdict-text">The universe is clearing old baggage and preparing you for a better, brighter you.</p>
+          <span class="verdict-sparkle" aria-hidden="true">✦</span>
+        </div>
+      </section>
+
+      <!-- 6. Action Buttons -->
+      <div class="results-action-row">
+        <button id="btn-copy-summary" class="btn-copy-summary-pill" type="button" aria-label="Copy summary to clipboard">
+          <span class="btn-pill-icon">📄</span>
           <span id="copy-summary-text">Copy Summary</span>
         </button>
 
-        <button id="btn-start-new" class="btn-primary" type="button" aria-label="Start a new reading">
-          <span class="btn-text">Start New Reading</span>
-          <span class="btn-arrow" aria-hidden="true">↺</span>
+        <button id="btn-start-new" class="btn-start-new-pill" type="button" aria-label="Start a new reading">
+          <span class="btn-pill-text">Start New Reading</span>
+          <span class="btn-pill-icon">🔄</span>
         </button>
+      </div>
 
-        <!-- Detailed Legal / Entertainment Disclaimer -->
-        <footer class="results-footer">
-          <p class="legal-disclaimer">
-            <strong>Disclaimer:</strong> This reading is generated for entertainment, curiosity, and personal self-reflection. Palmistry and astrological symbolism are artistic interpretations and do not constitute verified knowledge about health, legal, relationships, or future events.
-          </p>
-          <p class="mode-info" id="r-mode-info">Engine: Gemini AI Orchestrator</p>
-        </footer>
+      <!-- 7. Footer Disclaimer -->
+      <footer class="results-footer-disclaimer">
+        <p class="disclaimer-text">
+          <span class="disclaimer-info-icon">ⓘ</span> <strong>Disclaimer:</strong> This is an AI-generated reading for entertainment and self-reflection only. It is not a prediction of real events.
+        </p>
+      </footer>
+
+      <!-- Hidden Legacy Container for Full DOM / Backward Compatibility -->
+      <div id="legacy-results-container" style="display: none;" aria-hidden="true">
+        <span id="r-user-name"></span>
+        <div id="results-focus-banner"><strong id="results-focus-text"></strong></div>
+        <div id="r-archetype-pill"></div>
+        <h3 id="r-archetype-title"></h3>
+        <p id="r-archetype-gift"></p>
+        <span id="r-tag-zodiac"></span>
+        <span id="r-tag-lifepath"></span>
+        <span id="r-tag-time"></span>
+        <h3 id="summary-category-title"></h3>
+        <p id="summary-seeker-subtitle"></p>
+        <section id="card-palm-highlights"><div id="r-palm-lines"></div></section>
+        <section id="card-personality"><h4 id="r-personality-title"></h4><p id="r-personality-summary"></p><ul id="r-personality-traits"></ul></section>
+        <section id="card-strengths-growth"><h4 id="r-strengths-growth-title"></h4><span id="r-strengths-text"></span><span id="r-growth-areas-text"></span></section>
+        <section id="card-career"><h4 id="r-career-title"></h4><p id="r-career-summary"></p><span id="r-career-environments"></span><span id="r-career-learning"></span></section>
+        <section id="card-relationships"><h4 id="r-relationships-title"></h4><p id="r-relationships-summary"></p><span id="r-relationships-communication"></span><span id="r-relationships-tip"></span></section>
+        <section id="card-future"><h4 id="r-future-title"></h4><p id="r-future-summary"></p><ul id="r-future-themes"></ul></section>
+        <section id="card-practical-suggestions"><h4 id="r-practical-title"></h4><ul id="r-practical-practices"></ul><p id="r-practical-prompt"></p><blockquote id="r-practical-affirmation"></blockquote></section>
+        <p id="r-mode-info"></p>
       </div>
 
     </main>
