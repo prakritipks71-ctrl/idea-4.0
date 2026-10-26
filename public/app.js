@@ -1764,7 +1764,9 @@ document.addEventListener('DOMContentLoaded', () => {
       summaryScoreLabel.textContent = summary.scoreLabel || 'Overall Balance Score';
     }
     if (summaryVibeScore) {
-      summaryVibeScore.textContent = summary.score || 85;
+      summaryVibeScore.textContent = (typeof summary.score === 'number' && summary.score >= 1 && summary.score <= 100)
+        ? summary.score
+        : (summary.score || '--');
     }
     if (summaryPersonaLabel) {
       summaryPersonaLabel.textContent = summary.personaLabel || 'Your Karma Persona';
@@ -1980,7 +1982,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const fullReportText =
 `✨ ${summary.title || 'Cosmic Reflection Report'} ✨
 👤 ${isTwo ? `${firstName} & ${p2Name}` : firstName}
-⭐ Overall Vibe Score: ${summary.score || 88}/100
+⭐ Overall Vibe Score: ${(typeof summary.score === 'number' && summary.score >= 1 && summary.score <= 100) ? summary.score : (summary.score || 50)}/100
 🏷️ Vibe Label: ${summary.label || 'Cosmic Seeker'}
 
 📊 SYNERGY METRICS:

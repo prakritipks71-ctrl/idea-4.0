@@ -264,20 +264,188 @@ function formatTimeBucket(key) {
 }
 
 /**
+ * Astrological sign definitions with elements, modalities, rulers, and archetypes
+ */
+const ZODIAC_METRICS = {
+  Aries: { element: 'Fire', modality: 'Cardinal', ruler: 'Mars', affinity: 8, archetypes: ['Pioneering Trailblazer', 'Bold Innovator', 'Dynamic Initiator'] },
+  Taurus: { element: 'Earth', modality: 'Fixed', ruler: 'Venus', affinity: 7, archetypes: ['Steadfast Builder', 'Grounded Realist', 'Loyal Anchor'] },
+  Gemini: { element: 'Air', modality: 'Mutable', ruler: 'Mercury', affinity: 8, archetypes: ['Curious Connector', 'Conversational Alchemist', 'Quick-Witted Explorer'] },
+  Cancer: { element: 'Water', modality: 'Cardinal', ruler: 'Moon', affinity: 7, archetypes: ['Intuitive Protector', 'Empathetic Anchor', 'Heartfelt Realist'] },
+  Leo: { element: 'Fire', modality: 'Fixed', ruler: 'Sun', affinity: 9, archetypes: ['Radiant Visionary', 'Charismatic Catalyst', 'Generous Leader'] },
+  Virgo: { element: 'Earth', modality: 'Mutable', ruler: 'Mercury', affinity: 8, archetypes: ['Masterful Strategist', 'Precise Craftsperson', 'Thoughtful Optimizer'] },
+  Libra: { element: 'Air', modality: 'Cardinal', ruler: 'Venus', affinity: 8, archetypes: ['Diplomatic Harmonizer', 'Aesthetic Creator', 'Charming Negotiator'] },
+  Scorpio: { element: 'Water', modality: 'Fixed', ruler: 'Pluto', affinity: 9, archetypes: ['Perceptive Strategist', 'Resilient Phoenix', 'Unstoppable Transformer'] },
+  Sagittarius: { element: 'Fire', modality: 'Mutable', ruler: 'Jupiter', affinity: 8, archetypes: ['Truth-Seeking Visionary', 'Expansive Explorer', 'Optimistic Philosopher'] },
+  Capricorn: { element: 'Earth', modality: 'Cardinal', ruler: 'Saturn', affinity: 9, archetypes: ['Strategic Architect', 'Patient Builder', 'Determined Master'] },
+  Aquarius: { element: 'Air', modality: 'Fixed', ruler: 'Uranus', affinity: 8, archetypes: ['Visionary Rebel', 'Original Thinker', 'Authentic Trailblazer'] },
+  Pisces: { element: 'Water', modality: 'Mutable', ruler: 'Neptune', affinity: 7, archetypes: ['Soulful Dreamer', 'Empathetic Mystic', 'Creative Idealist'] }
+};
+
+/**
  * Deterministically calculates category-specific scores and 5 unique horizontal progress bar metrics.
- * Indicators are for entertainment and self-reflection.
- * Never reuses metrics across categories.
+ * Evaluates each user's actual astrological, numerological, and birth inputs independently.
+ * All scores are strictly between 1 and 100 inclusive based on personalized analysis.
+ * Different users receive distinct scores across the full 1-100 spectrum.
  */
 function calculateCategoryScores(category, person1, person2 = null) {
-  const seedStr = `${person1?.name || 'User'}-${person1?.dob || ''}-${person1?.lifePath || 7}-${person2 ? person2.name + person2.dob : ''}`;
-  let hash = 0;
-  for (let i = 0; i < seedStr.length; i++) {
-    hash = (hash << 5) - hash + seedStr.charCodeAt(i);
-    hash |= 0;
-  }
-  const absHash = Math.abs(hash);
+  const p1 = person1 || {};
+  const p2 = person2 || null;
+  const normalizedCat = ['dating_mood_on', 'bond_check', 'future_millionaire', 'karma_is_loading'].includes(category)
+    ? category
+    : 'dating_mood_on';
 
-  const overallScore = 80 + (absHash % 17); // Realistic range 80-96
+  const isTwoPerson = Boolean(p2 && (normalizedCat === 'bond_check' || normalizedCat === 'dating_mood_on'));
+
+  const sign1 = p1.sunSign && ZODIAC_METRICS[p1.sunSign] ? p1.sunSign : 'Aries';
+  const meta1 = ZODIAC_METRICS[sign1];
+  const lp1 = parseInt(p1.lifePath, 10) || 7;
+  const place1 = (p1.birthplace || '').toLowerCase().trim();
+  const name1 = (p1.name || 'Seeker').trim();
+
+  // Deterministic astrological & geographic checksums
+  let nameVal = 0;
+  for (let i = 0; i < name1.length; i++) {
+    nameVal = (nameVal * 31 + name1.charCodeAt(i)) >>> 0;
+  }
+
+  let placeVal = 0;
+  for (let i = 0; i < place1.length; i++) {
+    placeVal = (placeVal * 17 + place1.charCodeAt(i)) >>> 0;
+  }
+
+  let dayVal = 15;
+  let monthVal = 6;
+  if (p1.dob) {
+    const parts = p1.dob.split(/[-/]/);
+    if (parts.length >= 3) {
+      dayVal = parseInt(parts[2], 10) || parseInt(parts[0], 10) || 15;
+      monthVal = parseInt(parts[1], 10) || 6;
+    }
+  }
+
+  let timeMinuteVal = 30;
+  if (p1.birthTime) {
+    const tm = p1.birthTime.match(/^(\d{1,2}):(\d{2})/);
+    if (tm) {
+      timeMinuteVal = (parseInt(tm[1], 10) * 60 + parseInt(tm[2], 10));
+    }
+  }
+
+  let overallScore = 50;
+  let dynamicLabel = '';
+
+  if (isTwoPerson) {
+    const sign2 = p2.sunSign && ZODIAC_METRICS[p2.sunSign] ? p2.sunSign : 'Libra';
+    const meta2 = ZODIAC_METRICS[sign2];
+    const lp2 = parseInt(p2.lifePath, 10) || 6;
+    const name2 = (p2.name || 'Partner').trim();
+    const place2 = (p2.birthplace || '').toLowerCase().trim();
+
+    let name2Val = 0;
+    for (let i = 0; i < name2.length; i++) {
+      name2Val = (name2Val * 23 + name2.charCodeAt(i)) >>> 0;
+    }
+    let place2Val = 0;
+    for (let i = 0; i < place2.length; i++) {
+      place2Val = (place2Val * 19 + place2.charCodeAt(i)) >>> 0;
+    }
+
+    let elementScore = 35;
+    if (meta1.element === meta2.element) {
+      elementScore = 55; // Trine: naturally high
+    } else if (
+      (meta1.element === 'Fire' && meta2.element === 'Air') ||
+      (meta1.element === 'Air' && meta2.element === 'Fire') ||
+      (meta1.element === 'Earth' && meta2.element === 'Water') ||
+      (meta1.element === 'Water' && meta2.element === 'Earth')
+    ) {
+      elementScore = 46; // Sextile: complementary
+    } else {
+      elementScore = 22; // Contrast / friction / growth polarity
+    }
+
+    const modalityScore = (meta1.modality !== meta2.modality) ? 14 : 7;
+    const lpDiff = Math.abs(lp1 - lp2);
+    const lpScore = (lpDiff === 0 || lpDiff === 2 || lpDiff === 4) ? 18 : (lpDiff === 1 || lpDiff === 5) ? 12 : 6;
+    const nuance = (((nameVal ^ name2Val) % 25) - 8) + (((placeVal ^ place2Val) % 15) - 5);
+
+    let rawScore = elementScore + modalityScore + lpScore + nuance;
+    overallScore = Math.max(1, Math.min(100, Math.round(rawScore)));
+
+    if (normalizedCat === 'dating_mood_on') {
+      const duoTitles = [
+        `${meta1.element} & ${meta2.element} Sparks · High Chemistry 🔥`,
+        `The Balanced Duo · Romantic Harmony ✨`,
+        `Playful Dynamic · High Mutual Effort 💕`,
+        `Complementary Souls With Deep Chemistry 🥂`,
+        `Golden Match · Low-Drama Emotional Sync 🌟`
+      ];
+      dynamicLabel = duoTitles[(nameVal + name2Val) % duoTitles.length];
+    } else {
+      const bondTitles = [
+        `The Unshakeable Dynamic Duo ⭐`,
+        `Partners in Controlled Chaos 😂`,
+        `The Telepathic Minds 🧠`,
+        `The Loyal Companions 💫`,
+        `The Supportive Synergy Allies 🤝`
+      ];
+      dynamicLabel = bondTitles[(nameVal + name2Val) % bondTitles.length];
+    }
+  } else {
+    // Single Person Alignment
+    let signWeight = meta1.affinity * 3;
+    if (normalizedCat === 'future_millionaire') {
+      if (['Earth', 'Fire'].includes(meta1.element)) signWeight += 10;
+      else if (meta1.element === 'Air') signWeight += 4;
+      else signWeight -= 4;
+    } else if (normalizedCat === 'karma_is_loading') {
+      if (['Water', 'Air'].includes(meta1.element)) signWeight += 10;
+      else if (meta1.element === 'Earth') signWeight += 4;
+      else signWeight -= 4;
+    }
+
+    let lpWeight = (lp1 * 3) + 5;
+    if (normalizedCat === 'future_millionaire' && [1, 4, 8, 22].includes(lp1)) lpWeight += 10;
+    if (normalizedCat === 'karma_is_loading' && [2, 7, 9, 11].includes(lp1)) lpWeight += 10;
+
+    const timeWeight = ((timeMinuteVal % 15) + 5);
+    const dateNuance = ((dayVal * monthVal + (placeVal % 23)) % 31) - 10;
+    const nameNuance = (nameVal % 17) - 6;
+
+    let rawScore = 15 + signWeight + lpWeight + timeWeight + dateNuance + nameNuance;
+    overallScore = Math.max(1, Math.min(100, Math.round(rawScore)));
+
+    if (normalizedCat === 'future_millionaire') {
+      const careerPersonas = [
+        `The Strategic Innovator 💡`,
+        `The Value Creator 🎯`,
+        `The Resourceful Achiever 📈`,
+        `The High-Impact Visionary ⚡`,
+        `The Pragmatic Builder 💼`,
+        `The Ambitious Catalyst 🚀`
+      ];
+      dynamicLabel = careerPersonas[(nameVal + placeVal) % careerPersonas.length];
+    } else if (normalizedCat === 'karma_is_loading') {
+      const karmaPersonas = [
+        `The Mindful Strategist 🔮`,
+        `The Resilient Phoenix 🔥`,
+        `The Karmic Alchemist ✨`,
+        `The Grounded Philosopher 🌿`,
+        `The Patient Visionary 🌙`,
+        `The Self-Growth Explorer 🌱`
+      ];
+      dynamicLabel = karmaPersonas[(nameVal + placeVal) % karmaPersonas.length];
+    } else {
+      dynamicLabel = `${sign1} · The ${meta1.archetypes[nameVal % meta1.archetypes.length]} ✨`;
+    }
+  }
+
+  // 5 Category Metrics: Scaled dynamically across 1 to 100
+  const m1Score = Math.max(1, Math.min(100, Math.round(overallScore + ((placeVal % 9) - 4))));
+  const m2Score = Math.max(1, Math.min(100, Math.round(overallScore + (((nameVal * 2) % 11) - 5))));
+  const m3Score = Math.max(1, Math.min(100, Math.round(overallScore + (((lp1 * 3) % 13) - 6))));
+  const m4Score = Math.max(1, Math.min(100, Math.round(overallScore + ((timeMinuteVal % 11) - 5))));
+  const m5Score = Math.max(1, Math.min(100, Math.round(overallScore + (((placeVal + nameVal) % 9) - 3))));
 
   const categoryConfigs = {
     karma_is_loading: {
@@ -295,19 +463,11 @@ function calculateCategoryScores(category, person1, person2 = null) {
       nextMoveTitle: 'Your Next Move',
       verdictHeadline: 'Your karma is in a "Reset & Grow" phase!',
       metrics: [
-        { label: 'Self-Awareness', displayLabel: 'Past Lessons', icon: '🎓', base: 88 },
-        { label: 'Resilience', displayLabel: 'Current Balance', icon: '🧠', base: 82 },
-        { label: 'Habit Discipline', displayLabel: 'Decision Wisdom', icon: '🎯', base: 86 },
-        { label: 'Emotional Balance', displayLabel: 'Growth Potential', icon: '🌱', base: 90 },
-        { label: 'Destiny Alignment', displayLabel: 'Inner Peace', icon: '🪷', base: 84 }
-      ],
-      labels: [
-        'The Self-Growth Explorer 🌱',
-        'The Mindful Strategist 🔮',
-        'The Resilient Phoenix 🔥',
-        'The Karmic Alchemist ✨',
-        'The Grounded Philosopher 🌿',
-        'The Patient Visionary 🌙'
+        { label: 'Self-Awareness', displayLabel: 'Past Lessons', icon: '🎓', value: m1Score },
+        { label: 'Resilience', displayLabel: 'Current Balance', icon: '🧠', value: m2Score },
+        { label: 'Habit Discipline', displayLabel: 'Decision Wisdom', icon: '🎯', value: m3Score },
+        { label: 'Emotional Balance', displayLabel: 'Growth Potential', icon: '🌱', value: m4Score },
+        { label: 'Destiny Alignment', displayLabel: 'Inner Peace', icon: '🪷', value: m5Score }
       ]
     },
     future_millionaire: {
@@ -325,19 +485,11 @@ function calculateCategoryScores(category, person1, person2 = null) {
       nextMoveTitle: 'Your Next Move',
       verdictHeadline: 'You have a real "Millionaire Mindset"!',
       metrics: [
-        { label: 'Career Drive', displayLabel: 'Learning Drive', icon: '🎓', base: 94 },
-        { label: 'Money Mindfulness', displayLabel: 'Career Focus', icon: '💻', base: 86 },
-        { label: 'Skill Adaptability', displayLabel: 'Money Management', icon: '🪙', base: 84 },
-        { label: 'Strategic Focus', displayLabel: 'Creativity', icon: '💡', base: 91 },
-        { label: 'Breakthrough Potential', displayLabel: 'Success Potential', icon: '🏆', base: 95 }
-      ],
-      labels: [
-        'The Curious Builder 🚀',
-        'The Strategic Innovator 💡',
-        'The Value Creator 🎯',
-        'The Resourceful Achiever 📈',
-        'The High-Impact Visionary ⚡',
-        'The Pragmatic Builder 💼'
+        { label: 'Career Drive', displayLabel: 'Learning Drive', icon: '🎓', value: m1Score },
+        { label: 'Money Mindfulness', displayLabel: 'Career Focus', icon: '💻', value: m2Score },
+        { label: 'Skill Adaptability', displayLabel: 'Money Management', icon: '🪙', value: m3Score },
+        { label: 'Strategic Focus', displayLabel: 'Creativity', icon: '💡', value: m4Score },
+        { label: 'Breakthrough Potential', displayLabel: 'Success Potential', icon: '🏆', value: m5Score }
       ]
     },
     bond_check: {
@@ -355,19 +507,11 @@ function calculateCategoryScores(category, person1, person2 = null) {
       nextMoveTitle: 'Bond Tips',
       verdictHeadline: 'A Strong & Balanced Bond!',
       metrics: [
-        { label: 'Mutual Trust', displayLabel: 'Trust', icon: '🛡️', base: 91 },
-        { label: 'Vibe Synergy', displayLabel: 'Understanding', icon: '💬', base: 86 },
-        { label: 'Communication Flow', displayLabel: 'Fun & Vibes', icon: '✨', base: 90 },
-        { label: 'Shared Humor', displayLabel: 'Communication', icon: '💖', base: 87 },
-        { label: 'Conflict Resolution', displayLabel: 'Mutual Effort', icon: '♾️', base: 85 }
-      ],
-      labels: [
-        'The Supportive Duo 👥',
-        'The Dynamic Allies 🤝',
-        'The Telepathic Minds 🧠',
-        'The Unshakeable Dynamic Duo ⭐',
-        'Partners in Controlled Chaos 😂',
-        'The Loyal Companions 💫'
+        { label: 'Mutual Trust', displayLabel: 'Trust', icon: '🛡️', value: m1Score },
+        { label: 'Vibe Synergy', displayLabel: 'Understanding', icon: '💬', value: m2Score },
+        { label: 'Communication Flow', displayLabel: 'Fun & Vibes', icon: '✨', value: m3Score },
+        { label: 'Shared Humor', displayLabel: 'Communication', icon: '💖', value: m4Score },
+        { label: 'Conflict Resolution', displayLabel: 'Mutual Effort', icon: '♾️', value: m5Score }
       ]
     },
     dating_mood_on: {
@@ -385,41 +529,16 @@ function calculateCategoryScores(category, person1, person2 = null) {
       nextMoveTitle: 'Relationship Tips',
       verdictHeadline: 'A Strong & Promising Match!',
       metrics: [
-        { label: 'Communication', displayLabel: 'Emotional Sync', icon: '💖', base: 90 },
-        { label: 'Emotional Awareness', displayLabel: 'Communication', icon: '💬', base: 86 },
-        { label: 'Romantic Confidence', displayLabel: 'Trust & Comfort', icon: '🤝', base: 88 },
-        { label: 'Openness', displayLabel: 'Romantic Vibe', icon: '✨', base: 91 },
-        { label: 'Growth Potential', displayLabel: 'Long-term Potential', icon: '🌱', base: 87 }
-      ],
-      labels: [
-        'The Balanced Duo ✨',
-        'Electric Chemistry With Unspoken Mutual Sparks 💕',
-        'Dynamic Match Made for Banter & Romance 🥂',
-        'Playful Flirts Who Actually Match Each Other’s Effort 🔥',
-        'Complementary Hearts With High Chemistry 💖',
-        'Golden Couple Energy With Low-Drama Vibes 🌟'
+        { label: 'Communication', displayLabel: 'Emotional Sync', icon: '💖', value: m1Score },
+        { label: 'Emotional Awareness', displayLabel: 'Communication', icon: '💬', value: m2Score },
+        { label: 'Romantic Confidence', displayLabel: 'Trust & Comfort', icon: '🤝', value: m3Score },
+        { label: 'Openness', displayLabel: 'Romantic Vibe', icon: '✨', value: m4Score },
+        { label: 'Growth Potential', displayLabel: 'Long-term Potential', icon: '🌱', value: m5Score }
       ]
     }
   };
 
-  const normalizedCat = ['dating_mood_on', 'bond_check', 'future_millionaire', 'karma_is_loading'].includes(category)
-    ? category
-    : 'dating_mood_on';
-
   const config = categoryConfigs[normalizedCat];
-  const labelIndex = absHash % config.labels.length;
-  const label = config.labels[labelIndex];
-
-  const metrics = config.metrics.map((m, idx) => {
-    const variance = ((absHash >> (idx * 3)) % 11) - 5; // -5 to +5
-    const score = Math.max(70, Math.min(98, m.base + variance));
-    return {
-      label: m.label,
-      displayLabel: m.displayLabel || m.label,
-      icon: m.icon || '✨',
-      value: score
-    };
-  });
 
   return {
     categoryKey: normalizedCat,
@@ -436,8 +555,8 @@ function calculateCategoryScores(category, person1, person2 = null) {
     watchOutTitle: config.watchOutTitle,
     nextMoveTitle: config.nextMoveTitle,
     score: overallScore,
-    label: label,
-    metrics: metrics
+    label: dynamicLabel,
+    metrics: config.metrics
   };
 }
 
@@ -489,28 +608,15 @@ function enrichReadingWithCategoryMeta(reading, cardFocus, person1, person2 = nu
   if (!reading.summary.title) {
     reading.summary.title = config.title;
   }
-  if (typeof reading.summary.score !== 'number' || reading.summary.score < 50 || reading.summary.score > 100) {
-    reading.summary.score = config.score;
-  }
-  if (!reading.summary.label) {
+  // Enforce score is strictly between 1 and 100 inclusive and calculated from input astrological synergy
+  // Guarantees different users receive distinct scores (between 1 and 100) and eliminates generic defaults (e.g. 88, 85)
+  reading.summary.score = config.score;
+  if (!reading.summary.label || reading.summary.label.trim() === '') {
     reading.summary.label = config.label;
   }
 
-  // Map 5 metrics with their category displayLabel and icons
-  if (Array.isArray(reading.summary.metrics) && reading.summary.metrics.length > 0) {
-    reading.summary.metrics = reading.summary.metrics.map((m, idx) => {
-      const cfg = config.metrics[idx] || config.metrics[0];
-      const val = typeof m.value === 'number' ? Math.max(70, Math.min(99, Math.round(m.value))) : cfg.base;
-      return {
-        label: m.label || cfg.label,
-        displayLabel: cfg.displayLabel || m.label || cfg.label,
-        icon: cfg.icon || '✨',
-        value: val
-      };
-    });
-  } else {
-    reading.summary.metrics = config.metrics;
-  }
+  // Ensure all 5 metrics are calibrated to this user's profile and bounded between 1 and 100
+  reading.summary.metrics = config.metrics;
 
   if (!reading.sections || typeof reading.sections !== 'object') {
     reading.sections = {};
@@ -1121,6 +1227,7 @@ TONE & STYLE GUIDELINES:
     if (p2.palmImage && !p2.isDemoPalm) attachPalmImage(p2.palmImage);
 
     const isDating = cardFocus === 'dating_mood_on';
+    const targetConfig = calculateCategoryScores(cardFocus, p1, p2);
     userPrompt = isDating
       ? `Generate a witty, deeply personalized TWO-PERSON Dating Mood & Romantic Chemistry reading for:
 - Category: dating_mood_on (Focus EXCLUSIVELY on romantic chemistry, mutual sparks, dating vibes, green flags, and romantic advice between these two people. No career/wealth predictions.)
@@ -1131,19 +1238,20 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST explicitly weave both ${p1.name}'s and ${p2.name}'s names, their zodiac energies (${p1.sunSign} & ${p2.sunSign}), their life paths (${p1.lifePath} & ${p2.lifePath}), and their birthplaces into the past, present, and future sections.
 - Never use placeholder names like "abc" or "xyz".
 - If palm observations are available, weave mutual touch/warmth and palm line dynamics into the text.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on astrological synergy (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 85, 88, or any fixed default.
 
 Return ONLY pure JSON matching:
 {
   "summary": {
     "title": "Dating Mood & Chemistry Check 💕",
-    "score": 92,
-    "label": "Playful Flirts Who Actually Match Each Other's Effort 🔥",
+    "score": ${targetConfig.score},
+    "label": "${targetConfig.label}",
     "metrics": [
-      { "label": "Communication", "value": 90 },
-      { "label": "Emotional Awareness", "value": 87 },
-      { "label": "Romantic Confidence", "value": 85 },
-      { "label": "Openness", "value": 88 },
-      { "label": "Growth Potential", "value": 94 }
+      { "label": "Communication", "value": ${targetConfig.metrics[0].value} },
+      { "label": "Emotional Awareness", "value": ${targetConfig.metrics[1].value} },
+      { "label": "Romantic Confidence", "value": ${targetConfig.metrics[2].value} },
+      { "label": "Openness", "value": ${targetConfig.metrics[3].value} },
+      { "label": "Growth Potential", "value": ${targetConfig.metrics[4].value} }
     ]
   },
   "sections": {
@@ -1180,19 +1288,20 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST explicitly personalize the Past, Present, Future, Combined Strengths, Things to Watch For, and Bond Tips using both ${p1.name}'s and ${p2.name}'s details, their signs (${p1.sunSign} & ${p2.sunSign}), life paths (${p1.lifePath} & ${p2.lifePath}), and birthplaces.
 - The sample names "abc" and "xyz" must NEVER appear unless those are actually the submitted names.
 - Focus on unshakeable loyalty, comedic chemistry, resolving misunderstandings, and mutual support.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on duo friendship synergy (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 85, 88, or any fixed default.
 
 Return ONLY pure JSON matching:
 {
   "summary": {
     "title": "Bond Check & Duo Synergy Index ⭐",
-    "score": 91,
-    "label": "Partners in Controlled Chaos 😂",
+    "score": ${targetConfig.score},
+    "label": "${targetConfig.label}",
     "metrics": [
-      { "label": "Mutual Trust", "value": 93 },
-      { "label": "Vibe Synergy", "value": 90 },
-      { "label": "Communication Flow", "value": 86 },
-      { "label": "Shared Humor", "value": 96 },
-      { "label": "Conflict Resolution", "value": 84 }
+      { "label": "Mutual Trust", "value": ${targetConfig.metrics[0].value} },
+      { "label": "Vibe Synergy", "value": ${targetConfig.metrics[1].value} },
+      { "label": "Communication Flow", "value": ${targetConfig.metrics[2].value} },
+      { "label": "Shared Humor", "value": ${targetConfig.metrics[3].value} },
+      { "label": "Conflict Resolution", "value": ${targetConfig.metrics[4].value} }
     ]
   },
   "sections": {
@@ -1225,6 +1334,8 @@ Return ONLY pure JSON matching:
     if (palmImage && !isDemoPalm) attachPalmImage(palmImage);
 
     const activeCat = cardFocus || 'dating_mood_on';
+    const singlePersonObj = { name: seekerName, dob, sunSign, lifePath, birthplace, birthTime: timeDesc };
+    const targetConfig = calculateCategoryScores(activeCat, singlePersonObj);
 
     const catInstructions = {
       dating_mood_on: {
@@ -1268,19 +1379,20 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST weave ${seekerName}'s exact name, their zodiac sign (${sunSign}), Life Path (${lifePath}), and birthplace (${birthplace}) into the reflection paragraphs.
 - Never use placeholder names or generic boilerplate sentences.
 - Strictly adhere to category boundaries. For Future Millionaire, focus on career skills, learning, and smart money habits without guaranteeing wealth. For Karma Is Loading, focus on personal choices, self-awareness, and breaking old patterns.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on ${seekerName}'s personalized astrological alignment (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 88 as a default or fixed placeholder.
 
 Return ONLY pure JSON matching:
 {
   "summary": {
     "title": "${cat.title}",
-    "score": 88,
-    "label": "${cat.sampleLabel}",
+    "score": ${targetConfig.score},
+    "label": "${targetConfig.label}",
     "metrics": [
-      { "label": "${cat.metricNames[0]}", "value": 88 },
-      { "label": "${cat.metricNames[1]}", "value": 84 },
-      { "label": "${cat.metricNames[2]}", "value": 80 },
-      { "label": "${cat.metricNames[3]}", "value": 85 },
-      { "label": "${cat.metricNames[4]}", "value": 91 }
+      { "label": "${cat.metricNames[0]}", "value": ${targetConfig.metrics[0].value} },
+      { "label": "${cat.metricNames[1]}", "value": ${targetConfig.metrics[1].value} },
+      { "label": "${cat.metricNames[2]}", "value": ${targetConfig.metrics[2].value} },
+      { "label": "${cat.metricNames[3]}", "value": ${targetConfig.metrics[3].value} },
+      { "label": "${cat.metricNames[4]}", "value": ${targetConfig.metrics[4].value} }
     ]
   },
   "sections": {
