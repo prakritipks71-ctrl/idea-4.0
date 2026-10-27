@@ -147,7 +147,8 @@ describe('Reading Service Unit Tests', () => {
 
       assert.ok(mock.summary);
       assert.equal(typeof mock.summary.score, 'number');
-      assert.ok(mock.summary.score >= 70 && mock.summary.score <= 100);
+      assert.ok(mock.summary.score >= 60 && mock.summary.score <= 95);
+      assert.notEqual(mock.summary.score, 100);
       assert.ok(mock.summary.title.includes('Dating Mood'));
       assert.ok(mock.summary.label);
       assert.equal(mock.summary.metrics.length, 5);

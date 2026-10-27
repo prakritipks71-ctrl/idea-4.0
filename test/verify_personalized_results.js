@@ -43,6 +43,20 @@ console.log('Strengths:', resB.sections.strengths);
 assert.notEqual(resA.summary.score, resB.summary.score, 'Scores must vary for different people');
 assert.notEqual(resA.summary.label, resB.summary.label, 'Personas must vary for different people');
 
+function assertScoreAndMetricBounds(res, name) {
+  assert.equal(typeof res.summary.score, 'number', `${name} score must be a number`);
+  assert.ok(res.summary.score >= 60 && res.summary.score <= 95, `${name} score (${res.summary.score}) must be between 60 and 95`);
+  assert.notEqual(res.summary.score, 100, `${name} score must never be 100`);
+  assert.ok(Array.isArray(res.summary.metrics) && res.summary.metrics.length === 5, `${name} must have 5 metrics`);
+  res.summary.metrics.forEach(m => {
+    assert.ok(m.value >= 60 && m.value <= 95, `${name} metric ${m.label} (${m.value}) must be between 60 and 95`);
+    assert.notEqual(m.value, 100, `${name} metric ${m.label} must never be 100`);
+  });
+}
+
+assertScoreAndMetricBounds(resA, 'Person A (Prakriti)');
+assertScoreAndMetricBounds(resB, 'Person B (Dev)');
+
 // 3. Category: Future Millionaire
 const resMillionaire = generateMockReading({
   name: 'Rohan',
@@ -58,6 +72,7 @@ console.log('Persona:', resMillionaire.summary.label);
 console.log('Badge Img:', resMillionaire.summary.badgeImg);
 console.log('Metrics:', resMillionaire.summary.metrics.map(m => `${m.icon} ${m.displayLabel}: ${m.value}%`).join(', '));
 assert.equal(resMillionaire.summary.badgeImg, 'verdict_trophy.jpg');
+assertScoreAndMetricBounds(resMillionaire, 'Future Millionaire (Rohan)');
 
 // 4. Category: Bond Check (Two People)
 const resBond = generateMockReading({
@@ -73,6 +88,7 @@ console.log('Bond Type:', resBond.summary.label);
 console.log('Badge Img:', resBond.summary.badgeImg);
 console.log('Metrics:', resBond.summary.metrics.map(m => `${m.icon} ${m.displayLabel}: ${m.value}%`).join(', '));
 assert.equal(resBond.summary.badgeImg, 'verdict_hearts.jpg');
+assertScoreAndMetricBounds(resBond, 'Bond Check (Aman & Pooja)');
 
 // 5. Category: Dating Mood On (Two People)
 const resDating = generateMockReading({
@@ -88,5 +104,6 @@ console.log('Couple Vibe:', resDating.summary.label);
 console.log('Badge Img:', resDating.summary.badgeImg);
 console.log('Metrics:', resDating.summary.metrics.map(m => `${m.icon} ${m.displayLabel}: ${m.value}%`).join(', '));
 assert.equal(resDating.summary.badgeImg, 'verdict_couple.jpg');
+assertScoreAndMetricBounds(resDating, 'Dating Mood On (Kabir & Tara)');
 
 console.log('\nAll dynamic personalization and category asset tests passed with flying colors!');

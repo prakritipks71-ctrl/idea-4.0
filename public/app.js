@@ -1764,9 +1764,9 @@ document.addEventListener('DOMContentLoaded', () => {
       summaryScoreLabel.textContent = summary.scoreLabel || 'Overall Balance Score';
     }
     if (summaryVibeScore) {
-      summaryVibeScore.textContent = (typeof summary.score === 'number' && summary.score >= 1 && summary.score <= 100)
-        ? summary.score
-        : (summary.score || '--');
+      const numScore = typeof summary.score === 'number' ? summary.score : parseInt(summary.score, 10);
+      const safeScore = !isNaN(numScore) ? Math.max(60, Math.min(95, Math.round(numScore))) : '--';
+      summaryVibeScore.textContent = safeScore;
     }
     if (summaryPersonaLabel) {
       summaryPersonaLabel.textContent = summary.personaLabel || 'Your Karma Persona';
@@ -1785,6 +1785,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fillId = `metric-fill-bar-${idx}`;
         const labelText = escapeHtml(m.displayLabel || m.label || 'Synergy');
         const iconText = escapeHtml(m.icon || '✨');
+        const rawVal = typeof m.value === 'number' ? m.value : parseInt(m.value, 10);
+        const metricVal = !isNaN(rawVal) ? Math.max(60, Math.min(95, Math.round(rawVal))) : 75;
         item.innerHTML = `
           <div class="metric-info-col">
             <span class="metric-emoji">${iconText}</span>
@@ -1793,7 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="metric-bar-track">
             <div class="metric-bar-fill" id="${fillId}" style="width: 0%;"></div>
           </div>
-          <div class="metric-percent-col">${m.value}%</div>
+          <div class="metric-percent-col">${metricVal}%</div>
         `;
         summaryMetricsList.appendChild(item);
 
@@ -1801,7 +1803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           const fillEl = document.getElementById(fillId);
           if (fillEl) {
-            fillEl.style.width = `${Math.min(100, Math.max(10, m.value))}%`;
+            fillEl.style.width = `${metricVal}%`;
           }
         }, 80 + idx * 60);
       });
@@ -1979,10 +1981,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ? sec.watchOutFor.map(w => `  ${w}`).join('\n')
         : '';
 
+      const rawShareScore = typeof summary.score === 'number' ? summary.score : parseInt(summary.score, 10);
+      const shareScore = !isNaN(rawShareScore) ? Math.max(60, Math.min(95, Math.round(rawShareScore))) : 75;
+
       const fullReportText =
 `✨ ${summary.title || 'Cosmic Reflection Report'} ✨
 👤 ${isTwo ? `${firstName} & ${p2Name}` : firstName}
-⭐ Overall Vibe Score: ${(typeof summary.score === 'number' && summary.score >= 1 && summary.score <= 100) ? summary.score : (summary.score || 50)}/100
+⭐ Overall Vibe Score: ${shareScore}/100
 🏷️ Vibe Label: ${summary.label || 'Cosmic Seeker'}
 
 📊 SYNERGY METRICS:

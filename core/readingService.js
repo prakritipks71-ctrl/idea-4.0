@@ -284,8 +284,9 @@ const ZODIAC_METRICS = {
 /**
  * Deterministically calculates category-specific scores and 5 unique horizontal progress bar metrics.
  * Evaluates each user's actual astrological, numerological, and birth inputs independently.
- * All scores are strictly between 1 and 100 inclusive based on personalized analysis.
- * Different users receive distinct scores across the full 1-100 spectrum.
+ * All scores are strictly between 60 and 95 inclusive based on personalized analysis.
+ * Scores never exceed 95 and never equal 100.
+ * Different users receive distinct scores across the 60-95 spectrum.
  */
 function calculateCategoryScores(category, person1, person2 = null) {
   const p1 = person1 || {};
@@ -331,7 +332,7 @@ function calculateCategoryScores(category, person1, person2 = null) {
     }
   }
 
-  let overallScore = 50;
+  let overallScore = 75;
   let dynamicLabel = '';
 
   if (isTwoPerson) {
@@ -370,7 +371,9 @@ function calculateCategoryScores(category, person1, person2 = null) {
     const nuance = (((nameVal ^ name2Val) % 25) - 8) + (((placeVal ^ place2Val) % 15) - 5);
 
     let rawScore = elementScore + modalityScore + lpScore + nuance;
-    overallScore = Math.max(1, Math.min(100, Math.round(rawScore)));
+    // Map rawScore (range ~20 to ~110) strictly into the range 60 to 95 (never 100, never > 95)
+    const mappedScore = 60 + ((rawScore - 20) / 90) * 35;
+    overallScore = Math.max(60, Math.min(95, Math.round(mappedScore)));
 
     if (normalizedCat === 'dating_mood_on') {
       const duoTitles = [
@@ -413,7 +416,9 @@ function calculateCategoryScores(category, person1, person2 = null) {
     const nameNuance = (nameVal % 17) - 6;
 
     let rawScore = 15 + signWeight + lpWeight + timeWeight + dateNuance + nameNuance;
-    overallScore = Math.max(1, Math.min(100, Math.round(rawScore)));
+    // Map rawScore (range ~25 to ~145) strictly into the range 60 to 95 (never 100, never > 95)
+    const mappedScore = 60 + ((rawScore - 25) / 120) * 35;
+    overallScore = Math.max(60, Math.min(95, Math.round(mappedScore)));
 
     if (normalizedCat === 'future_millionaire') {
       const careerPersonas = [
@@ -440,12 +445,22 @@ function calculateCategoryScores(category, person1, person2 = null) {
     }
   }
 
-  // 5 Category Metrics: Scaled dynamically across 1 to 100
-  const m1Score = Math.max(1, Math.min(100, Math.round(overallScore + ((placeVal % 9) - 4))));
-  const m2Score = Math.max(1, Math.min(100, Math.round(overallScore + (((nameVal * 2) % 11) - 5))));
-  const m3Score = Math.max(1, Math.min(100, Math.round(overallScore + (((lp1 * 3) % 13) - 6))));
-  const m4Score = Math.max(1, Math.min(100, Math.round(overallScore + ((timeMinuteVal % 11) - 5))));
-  const m5Score = Math.max(1, Math.min(100, Math.round(overallScore + (((placeVal + nameVal) % 9) - 3))));
+  // 5 Category Metrics: Strictly calibrated between 60 and 95 (never 100, never > 95)
+  function calculateMetricScore(baseScore, offset) {
+    let score = baseScore + offset;
+    if (score > 95) {
+      score = 95 - (score - 95);
+    } else if (score < 60) {
+      score = 60 + (60 - score);
+    }
+    return Math.max(60, Math.min(95, Math.round(score)));
+  }
+
+  const m1Score = calculateMetricScore(overallScore, (placeVal % 9) - 4);
+  const m2Score = calculateMetricScore(overallScore, ((nameVal * 2) % 11) - 5);
+  const m3Score = calculateMetricScore(overallScore, ((lp1 * 3) % 13) - 6);
+  const m4Score = calculateMetricScore(overallScore, (timeMinuteVal % 11) - 5);
+  const m5Score = calculateMetricScore(overallScore, ((placeVal + nameVal) % 9) - 3);
 
   const categoryConfigs = {
     karma_is_loading: {
@@ -608,15 +623,18 @@ function enrichReadingWithCategoryMeta(reading, cardFocus, person1, person2 = nu
   if (!reading.summary.title) {
     reading.summary.title = config.title;
   }
-  // Enforce score is strictly between 1 and 100 inclusive and calculated from input astrological synergy
-  // Guarantees different users receive distinct scores (between 1 and 100) and eliminates generic defaults (e.g. 88, 85)
-  reading.summary.score = config.score;
+  // Enforce score is strictly between 60 and 95 inclusive and calculated from input astrological synergy
+  // Guarantees different users receive distinct scores (between 60 and 95), never exceeds 95, and never 100
+  reading.summary.score = Math.max(60, Math.min(95, Math.round(config.score)));
   if (!reading.summary.label || reading.summary.label.trim() === '') {
     reading.summary.label = config.label;
   }
 
-  // Ensure all 5 metrics are calibrated to this user's profile and bounded between 1 and 100
-  reading.summary.metrics = config.metrics;
+  // Ensure all 5 metrics are calibrated to this user's profile and bounded between 60 and 95
+  reading.summary.metrics = config.metrics.map(m => ({
+    ...m,
+    value: Math.max(60, Math.min(95, Math.round(m.value)))
+  }));
 
   if (!reading.sections || typeof reading.sections !== 'object') {
     reading.sections = {};
@@ -1104,11 +1122,14 @@ function validateReadingResult(data, cardFocus) {
     if (typeof data.summary.score !== 'number' || !data.summary.label || !data.summary.title) {
       return false;
     }
+    // Enforce range 60 to 95 and never 100
+    data.summary.score = Math.max(60, Math.min(95, Math.round(data.summary.score)));
     if (!Array.isArray(data.summary.metrics) || data.summary.metrics.length !== 5) {
       return false;
     }
     for (const m of data.summary.metrics) {
       if (!m.label || typeof m.value !== 'number') return false;
+      m.value = Math.max(60, Math.min(95, Math.round(m.value)));
     }
 
     const sec = data.sections;
@@ -1238,7 +1259,7 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST explicitly weave both ${p1.name}'s and ${p2.name}'s names, their zodiac energies (${p1.sunSign} & ${p2.sunSign}), their life paths (${p1.lifePath} & ${p2.lifePath}), and their birthplaces into the past, present, and future sections.
 - Never use placeholder names like "abc" or "xyz".
 - If palm observations are available, weave mutual touch/warmth and palm line dynamics into the text.
-- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on astrological synergy (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 85, 88, or any fixed default.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 60 and 95 based on astrological synergy (calculated target: ${targetConfig.score}). Scores must never exceed 95, must never be 100, and must strictly remain in the 60 to 95 range. Different users MUST receive different scores.
 
 Return ONLY pure JSON matching:
 {
@@ -1288,7 +1309,7 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST explicitly personalize the Past, Present, Future, Combined Strengths, Things to Watch For, and Bond Tips using both ${p1.name}'s and ${p2.name}'s details, their signs (${p1.sunSign} & ${p2.sunSign}), life paths (${p1.lifePath} & ${p2.lifePath}), and birthplaces.
 - The sample names "abc" and "xyz" must NEVER appear unless those are actually the submitted names.
 - Focus on unshakeable loyalty, comedic chemistry, resolving misunderstandings, and mutual support.
-- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on duo friendship synergy (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 85, 88, or any fixed default.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 60 and 95 based on duo friendship synergy (calculated target: ${targetConfig.score}). Scores must never exceed 95, must never be 100, and must strictly remain in the 60 to 95 range. Different users MUST receive different scores.
 
 Return ONLY pure JSON matching:
 {
@@ -1379,7 +1400,7 @@ CRITICAL PERSONALIZATION INSTRUCTIONS:
 - You MUST weave ${seekerName}'s exact name, their zodiac sign (${sunSign}), Life Path (${lifePath}), and birthplace (${birthplace}) into the reflection paragraphs.
 - Never use placeholder names or generic boilerplate sentences.
 - Strictly adhere to category boundaries. For Future Millionaire, focus on career skills, learning, and smart money habits without guaranteeing wealth. For Karma Is Loading, focus on personal choices, self-awareness, and breaking old patterns.
-- SCORING REQUIREMENT: The overall score MUST be an integer between 1 and 100 based on ${seekerName}'s personalized astrological alignment (it can be ANY number between 1 to 100; calculated target: ${targetConfig.score}). Different users MUST receive different scores. Never use 88 as a default or fixed placeholder.
+- SCORING REQUIREMENT: The overall score MUST be an integer between 60 and 95 based on ${seekerName}'s personalized astrological alignment (calculated target: ${targetConfig.score}). Scores must never exceed 95, must never be 100, and must strictly remain in the 60 to 95 range. Different users MUST receive different scores.
 
 Return ONLY pure JSON matching:
 {

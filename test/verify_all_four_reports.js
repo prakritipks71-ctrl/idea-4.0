@@ -5,19 +5,21 @@ require('dotenv').config();
 
 async function testAllCardsPersonalization() {
   console.log('================================================================');
-  console.log('PERSONALIZATION & 1-100 SCORING VERIFICATION ACROSS ALL FOUR CARDS');
+  console.log('PERSONALIZATION & 60-95 SCORING VERIFICATION ACROSS ALL FOUR CARDS');
   console.log('================================================================\n');
 
   function validateScoresAndMetrics(reading, cardName) {
     const score = reading?.summary?.score;
     assert.equal(typeof score, 'number', `${cardName} score must be a number`);
-    assert.ok(score >= 1 && score <= 100, `${cardName} score (${score}) must be between 1 and 100 inclusive`);
+    assert.ok(score >= 60 && score <= 95, `${cardName} score (${score}) must be between 60 and 95 inclusive`);
+    assert.notEqual(score, 100, `${cardName} score must never be 100`);
 
     const metrics = reading?.summary?.metrics;
     assert.ok(Array.isArray(metrics) && metrics.length === 5, `${cardName} must have 5 metrics`);
     metrics.forEach((m, idx) => {
       assert.equal(typeof m.value, 'number', `${cardName} metric ${idx} value must be a number`);
-      assert.ok(m.value >= 1 && m.value <= 100, `${cardName} metric ${m.label} (${m.value}) must be between 1 and 100 inclusive`);
+      assert.ok(m.value >= 60 && m.value <= 95, `${cardName} metric ${m.label} (${m.value}) must be between 60 and 95 inclusive`);
+      assert.notEqual(m.value, 100, `${cardName} metric ${m.label} must never be 100`);
     });
   }
 
@@ -62,7 +64,7 @@ async function testAllCardsPersonalization() {
   assert.ok(datingB.sections.past.includes('Ananya') || datingB.sections.present.includes('Ananya'));
   assert.ok(!JSON.stringify(datingA).includes('abc') && !JSON.stringify(datingB).includes('abc'));
   assert.ok(!JSON.stringify(datingA).includes('xyz') && !JSON.stringify(datingB).includes('xyz'));
-  console.log('✓ Dating Mood On personalization and 1-100 score bounds verified!\n');
+  console.log('✓ Dating Mood On personalization and 60-95 score bounds verified!\n');
 
   // -------------------------------------------------------------------------
   // CARD 2: BOND CHECK (2 People)
@@ -105,7 +107,7 @@ async function testAllCardsPersonalization() {
   assert.ok(bondB.sections.past.includes('Vikram') || bondB.sections.present.includes('Vikram'));
   assert.ok(!JSON.stringify(bondA).includes('abc') && !JSON.stringify(bondB).includes('abc'));
   assert.ok(!JSON.stringify(bondA).includes('xyz') && !JSON.stringify(bondB).includes('xyz'));
-  console.log('✓ Bond Check personalization and 1-100 score bounds verified!\n');
+  console.log('✓ Bond Check personalization and 60-95 score bounds verified!\n');
 
   // -------------------------------------------------------------------------
   // CARD 3: FUTURE MILLIONAIRE (1 Person)
@@ -151,7 +153,7 @@ async function testAllCardsPersonalization() {
   assert.ok(milA.sections.past.includes('Aarav') || milA.sections.present.includes('Aarav'));
   assert.ok(milB.sections.past.includes('Dev') || milB.sections.present.includes('Dev'));
   assert.ok(!JSON.stringify(milA).includes('abc') && !JSON.stringify(milB).includes('abc'));
-  console.log('✓ Future Millionaire personalization and 1-100 score bounds verified!\n');
+  console.log('✓ Future Millionaire personalization and 60-95 score bounds verified!\n');
 
   // -------------------------------------------------------------------------
   // CARD 4: KARMA IS LOADING (1 Person)
@@ -197,7 +199,7 @@ async function testAllCardsPersonalization() {
   assert.ok(karmaA.sections.past.includes('Prakriti') || karmaA.sections.present.includes('Prakriti'));
   assert.ok(karmaB.sections.past.includes('Siddharth') || karmaB.sections.present.includes('Siddharth'));
   assert.ok(!JSON.stringify(karmaA).includes('abc') && !JSON.stringify(karmaB).includes('abc'));
-  console.log('✓ Karma Is Loading personalization and 1-100 score bounds verified!\n');
+  console.log('✓ Karma Is Loading personalization and 60-95 score bounds verified!\n');
 
   // -------------------------------------------------------------------------
   // SECTION 5: SIMULTANEOUS CONCURRENT REQUESTS (NO DATA MIXING & INDEPENDENT SCORES)
@@ -257,7 +259,7 @@ async function testAllCardsPersonalization() {
   console.log('✓ Simultaneous requests executed cleanly without data mixing!\n');
 
   console.log('================================================================');
-  console.log('ALL FOUR CARDS PASSED PERSONALIZATION, 1-100 BOUNDS, AND CONCURRENCY TESTS!');
+  console.log('ALL FOUR CARDS PASSED PERSONALIZATION, 60-95 BOUNDS, AND CONCURRENCY TESTS!');
   console.log('================================================================');
 }
 
